@@ -1,6 +1,7 @@
 {
-  "index": "What is Movement?",
-  "move_solidity" : "Move vs Solidity",
+  "index": "Polkadot Bootcamp 2024",
+  "introduction_to_substrate" : "Introduction to Substrate",
+  "overview_polkadot_sdk" : "Overview Polkadot SDK",
   "rakiapp": {
     "title": "Polkadot Bootcamp - Video ↗",
     "type": "page",

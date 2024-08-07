@@ -1,24 +1,3 @@
-#+TITLE: Movement with Aptos Workshop
+#+TITLE: Polkadot Bootcamp 2024 
 
-* Movement with Aptos Workshop
-** What is Movement?
-+ Movement Labs đang tập trung xây dựng một Blockchain Network chạy trên hạ tầng Move-Based (Move Virtual Machine), sản phẩm nổi bật và chủ đạo là Movement Network và M1 Shared Sequencer (sẽ được đề cập trong phần sau).
-+ Movement là một nền tảng tương tác với nhau thông qua blockchain cung cập một TPS (Transactions per second) nhanh nhất có thể thông qua việc sử dụng Move (Move Language, Move Virtual Machine), ngoài ra còn đạt được instant finality (Hoàn tất giao dịch tức thời).
-+ Movement cũng có khả năng cung cấp thanh khoản lớn ngày từ đầu blockchain. (native day-zero access mass liquidity).
-+ Modular Customizations: Khả năng thay đổi và tuỷ chình các thành phần của blockchain theo nhu cầu để phù hợp với nhiều mục đích.
-+ Movement đang hỗ trợ cho 3 nền tảng Blockchain bao gồm: Aptos Move, Sui Move, và cũng hỗ trợ embedded EVM được thông dịch thông qua MEVM - trao quyền cho user trên Sui, Aptos và EVM có thể sử dụng thông qua L2.
-** Why Move?
-+ Move là một ngôn ngữ lập trình được tạo ra bởi Facebook với tính an toàn và bảo mật cao, được tạo ra với mục đích tập trung vào các ứng dụng quản lý tài sản, như tính sở hữu (ownership) và an toàn (Phù hợp với các ứng dụng liên quan tới tài sản).
-+ Các tài sản (assets) trong move được biểu diễn lại dưới là "tài nguyên" (resources).
-+ Nhờ vào mô hình Ownership và khả năng quản lý các resources một cách rõ ràng
-+ Move làm cho việc lập trình và phát triển các ứng dụng smart contracts với những chức năng cơ bản trên blockchain như truyển đổi, mua bán tài sản, quản lý, tạo và xoá tài sản trở nên dễ dàng và an toàn hơn.
-+ Table bên dưới sẽ cho các bạn thấy những so sánh cơ bản của non-Move Runtimes vể điểm mạnh cảu Aptos & Sui runtimes, so với các models khác & lợi ích của Move.
 
-|                       | Aptos/Move                                                       | Solan/SeaLevel                             | EVM                                       | Sui/Move                               |
-| Data Storage          | global address hoặc với owner's account                          | owner's account associated với một program | account associated với một smart contract | global address                         |
-| Parallelization       | Có khả năng xác định và thực thi song song trên Aptos Runtime    | Yêu cầu tất cả dữ liệu được truy cập       | Chạy theo tuần tự (serial)                | Yêu cầu tất cả dữ liệu được truy cập   |
-| Transaction Safety    | Sequencer Number (Số thứ tự)                                     | Transaction Uniqueness (Tính duy nhất)     | Nonces (số tuần tự với mỗi account)       | Transaction Uniqueness (Tính duy nhất) |
-| Type Safety           | Module structs & Generics                                        | Program Structs                            | Contract Types                            | Module structs & generics              |
-| Function Calling      | Static dispatch                                                  | static ditpatch                            | Dynamic Dispatch                          | Static dispatch                        |
-| Authenticated Storage | Yes                                                              | No                                         | Yes                                       | No                                     |
-| Object Accessibility  | Được đảm bảo, bảo vệ khi truy cập ở global (globally accessible) | Không có                                   | Không có                                  | Có thể ẩn                              |
