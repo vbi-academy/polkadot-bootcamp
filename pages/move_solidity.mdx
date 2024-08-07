@@ -1,0 +1,42 @@
+# What is Move?
+
+-   Move là một ngôn ngữ lập trình được tạo ra để viết các smart contract hoặc program, tập trung sự an toàn và khả năng quản lý tài sản số hoá (digital assets) một cách hiệu quả.
+
+# What is Resources?
+
+-   Với Move, một "resource" (tài nguyên) là một kiểu dữ liệu đặc biệt được thiết để miểu tả như một tài sản số hoá (digital assets), như tokens hoặc coin.
+-   Các tính tăng chính của "resources"
+    -   Non-copyable: Bạn không thể tạo ra một bản sản của resource, điều này đảm bảo là các assets như tokens không thể bị copy, điều này sẽ loại bỏ vấn đề như "double-spending".
+    -   Non-droppable: Bạn không có gặp các tai nạn như là xoá bỏ hoặc bị mất resource. Điều này sẽ giúp bảo vệ digital asset khỏi các tình huống mất tài sản hy hữu.
+    -   Storable: Bạn cũng có khả năng lưu trữ tài sản trong một account hoặc trong một resource khác.
+    -   Transferable: Bạn có thể di chuyển (transfer) resources giữa các tài khoản (accounts) nhưng chỉ owner của assets mới có thể thực thi việc này.
+
+# Why is Important?
+
+-   Move khiến cho việc viết code và đảm bảo code hoạt động tốt trong việc truyển đổi tài sản một cách tự đồng, àn toàn một cách dễ dàng hơn, và giúp cho developer không phải quan tâm quá nhiều vào vấn đề security trong khi nó đã được xây dựng bên dưới hạ tầng của Move.
+-   Ngược lại, các solidity developers phải thực thi việc đảm bảo việc truyển đổi tài sản an toàn một cách thủ công, điều này chính là vấn đề dễ tạo ra các lỗi không đáng có.
+
+``` rust
+module address::name {
+    struct ResourceName has key, store {
+        FIELD: TYPE
+    }
+}
+```
+
+-   Example Code:
+
+``` rust
+module address::name {
+    use std::string::String;
+
+    struct Bank has key, store {
+        total_amount: vector<Money>
+    }
+
+    struct Money has key, store {
+        name: String,
+        amount: u64
+    }
+}
+```

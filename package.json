@@ -1,0 +1,36 @@
+{
+  "name": "polkadot-bootcamp",
+  "version": "0.0.1",
+  "description": "Polkadot Bootcamp",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/openedu101/polkadot-bootcamp"
+  },
+  "author": "Jayden <jayden.dangvu@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/openedu101/polkadot-bootcamp"
+  },
+  "homepage": "https://github.com/openedu101/polkadot-bootcamp",
+  "dependencies": {
+    "clsx": "^2.1.1",
+    "next": "^13.0.6",
+    "nextra": "latest",
+    "nextra-theme-docs": "latest",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "tailwind-merge": "^2.4.0"
+  },
+  "devDependencies": {
+    "@types/node": "18.11.10",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.40",
+    "tailwindcss": "^3.4.7",
+    "typescript": "^4.9.3"
+  }
+}

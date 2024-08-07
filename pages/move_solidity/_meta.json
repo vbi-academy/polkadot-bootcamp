@@ -1,0 +1,6 @@
+{
+  "parallel_execution" : "Parallel Execution",
+  "reentrancy_attacks" : "Reentrancy Attacks",
+  "memory_management" : "Memory Management",
+  "smart_contract_verification" : "Smart Contract Verification"
+}

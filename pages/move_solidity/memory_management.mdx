@@ -1,0 +1,66 @@
+# Memory Management
+
+## Solidity's MM
+
+### Key Concepts
+
+-   Garbage Collector: Solidity uses a system that automatically cleans
+    up memory that is no longer needed. This is similar to how many
+    other programming languages work.
+-   Heap-Based Memory Management: Solidity stores dynamic data (data
+    whose size can change) on the heap (storage), a region of memory
+    where the data can grow or shrink as needed.
+
+### Benefits
+
+-   Simplicity: Developers don't need to manually manage memory. The
+    garbage collector takes care of freeing up unused memory.
+
+## Move's MM
+
+### Key Concepts
+
+-   Ownership Transfer: In Move, when you move data from one place to
+    another, the original place moves access to that data. This means
+    that once you give something away, you can't use it anymore.
+-   Linear Type System: This system ensures that each piece of data
+    (resource) can only be used once. This helps prevent issues like
+    data races (when two things try to use the same data at the same
+    time) and use-after-free errors (using data after it has been
+    deleted)
+
+### Benefits
+
+-   Safety: By ensuring that data can only be used once, move avoids
+    many common programming errors that can lead to security issues.
+
+## Comparison
+
+-   Ownership & Automatic management:
+    -   Move: you must think about who owns the data & where it's moved.
+        Once moved, the original owner loses access.
+    -   Solidity: the garbage collector automatically manages memory, so
+        you don't need to worry about ownership.
+-   Safety & simplicity:
+    -   Move: safety due to strict rules about data usage, but requires
+        careful planning and understanding of data ownership.
+    -   Solidity: Easier to write code because memory management is
+        handled for you, but with a higher risk of memory-related bugs.
+
+## Simple Analogy
+
+-   Move: imagine you have a unique key. When you give this key to
+    someone, you can no longer use it. This ensures the key is always in
+    one place & can't be used by multiple people at the same time.
+-   Solidity: Imagine you have a room where you can put things, you
+    don't need to worry about cleaning up, and a cleaner comes in
+    regularly and removes anything you're not using anymore.
+
+## Summary
+
+-   Move: Focuses on strict memory management with a linear type system
+    & ownership transfer, providing safety but requiring a careful
+    approach
+-   Solidity: uses automatic memory management with a garbage collector,
+    making it simpler to use but potentially less safe if not used
+    carefully.

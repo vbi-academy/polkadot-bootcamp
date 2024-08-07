@@ -1,0 +1,81 @@
+# Reentrancy Attacks
+
+## What is Reentrancy Attacks
+
+> Một cuộc tấn công reentrancy là kiểu lỗ hổng khả phổ biến trên smart
+> contract nơi các attackers (hackers) có thể lặp lại liên tục việc gọi
+> (call) một function trước khi nó hoàn thành việc xác nhận hoặc cập
+> nhập trạng thái. Điều này có thể là nguyên nhân tạo ra các behavior
+> không mong muốn như cho phép attacker rút tiền trong ví hoặc quỹ
+> (funds) nhiều lần liên tiếp trước khi contract kịp update trạng thái.
+
+## How solidity handles reentrancy attacks
+
+-   Solidity sử dụng design pattern có tên là
+    "checked-effects-interactions" để bảo vệ reentrancy attacks. Đây là
+    cách nó hoạt động.
+    -   Checks: Đầu tiên, contract sẽ kiểm tra điều kiện của trạng thái
+        trước.
+    -   Effects: Tiếp tới, sau khi kiểm tra hết các điều kiện thì
+        contract sẽ update trạng thái.
+    -   Interactions: Cuối cùng, Contract mới tương tác với một external
+        contracts để thực thi (như việc chuyển Eth hoặc tokens.)
+    -   =\> Generally is: Update state trước rồi mới chuyển tài sản.
+
+``` solidity
+// SPDX-License-Identifier: GPL-3.0
+pragma solidity ^0.8.0;
+
+contract ReenTrancyAttacks {
+    function withdraw(uint amount) public {
+        require(balances[msg.sender] >= amount, "Insufficient balance");
+
+        balances[msg.sender] -= amount;
+
+        (bool success, ) = msg.sender.call{value: amount}("");
+        require(success, "Transfer failed");
+    }
+}
+```
+
+``` solidity
+// SPDX-License-Identifier: GPL-3.0
+pragma solidity ^0.8.0;
+
+contract ReenTrancyAttacks {
+    bool public isEffect;
+
+    function withdraw(uint amount) public {
+        isEffect = true;
+        require(balances[msg.sender] >= amount, "Insufficient balance");
+
+        balances[msg.sender] -= amount;
+
+        (bool success, ) = msg.sender.call{value: amount}("");
+        require(success, "Transfer failed");
+        isEffect = false;
+    }
+
+}
+```
+
+-   Bằng việc update trạng thái trước khi gọi một external calls hoặc
+    handle một local state, nhưng patterns này giúp cho việc bảo vệ các
+    cuộc tấn công reentrancy attacks bởi vì trạng thái đã được thay đổi
+    trước khi thực thi bất kì tương tác nào với một external call.
+
+## How move handles reentrancy attacks
+
+-   Move bảo vệ reentrancy attacks bằng các sử dụng "resource" model.
+-   Với Move, resources (như token) chỉ có thể truy cập bởi một
+    execution trong một thời điểm.
+-   Điều này có nghĩa là nếu function đang được thực thi với một
+    resource nào đó và nó chưa kết thúc, thì không có bất kì một
+    function nào có quyền truy cập resource này trong cùng 1 thời điểm
+    (dựa trên cơ chê ownership & borrowing)
+-   Bạn sẽ cần hiểu sâu về AptosBFT (Aptos Consensus) để hiểu rõ cách
+    thức hoạt động của nó.
+
+``` move
+public fun withdraw(account: &signer, amount: u64) acquires Resource {}
+```

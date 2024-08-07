@@ -1,0 +1,35 @@
+# Parallel Processing
+
+## Processing in Solidity & Move
+
+### Solidity
+
+-   Sequential Processing: Solidity thực thi code hoặc thay đổi trạng
+    theo thái theo dưới sychronous (step-by-step) sau khi thực thi thành
+    công một instruction rồi mới tới một cái khác, được sắp xếp theo
+    order họ đã thêm vào. Đó là bởi vì solidity chạy trên một threads
+    duy nhất, có nghĩa là Soldity chỉ có thể xử lý 1 task duy nhất trong
+    một thời điểm.
+-   Asynchronous Processing: Solidity có thể thực thi một vài tasks bên
+    dưới background bằng việc sử dụng events và callbacks, nhưng bản
+    chất thì nó vấn là single-threaded. Nó giống như việc đang đang làm
+    1 việc tại 1 thời điểm nhưng cũng đang đợi để check một task khác đã
+    xong chưa.
+
+### Move
+
+-   Parallel Processing: Move cho phép thực thi nhiều tasks trong một
+    thời điểm. Điều này khả thi bởi vì move sử lý các "resource"
+    uniquie, điều này khiến các tasks này được thực thi một cách an toàn
+    giữa các threads và không sợ bị ảnh hưởng đến tính đúng đắn của hệ
+    thống.
+-   Điều này có nghĩa là Move có thể thực thi hàng loạt các nhiệm vụ
+    đồng thời, khiến cho application nhanh hơn và khả năng mở rộng cho
+    các application phức tạp.
+
+## Summary
+
+-   Solidity: Đơn giản, có thể dự đoán được, tốt cho các ứng dụng yêu
+    cầu tính asynchronous cao.
+-   Move: Nhanh, khả năng mở rộng cao, tốt hơn cho các ứng dụng mang
+    tính phực tạp cao và yêu cầu về hiệu suất cao.
