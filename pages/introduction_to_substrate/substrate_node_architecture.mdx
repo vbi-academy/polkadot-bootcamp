@@ -1,0 +1,35 @@
+# Substrate Node Architecture 
+
+Gồm 2 phần chính đó là `Client` và `Runtime` 
+
+## Client 
++ Là 1 phần của `node` xử lý các vấn đề low level của blockchain như là p2p, transaction, rpc, storage, ... 
+
+## Runtime 
+
++ Là 1 phần của `node` xử lý các state transition function ( hàm dịch chuyển trạng thái như là state machine)
+
++ State Transition Function :hàm dịch chuyển trạng thái, thay đổi trạng thái `n` sang trạng thái `n+1` 
+
+Ví dụ:
+
+
+![](../assets/state_transition.png)
+
+
+## Architecture 
+
+
+Overview Architecture
+
+![](../assets/substrate_architecture.png)
+
+
+1. P2P Networking 
+2. RPC
+3. Consensus
+4. Telemetry
+5. Storage
+6. Wasm Runtime
+7. Native Runtime
+
