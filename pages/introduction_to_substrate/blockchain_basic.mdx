@@ -1,29 +1,84 @@
 # Blockchain cơ bản 
 
 
-## Blockchain là gì ? 
+## Blockchain là gì 
+Sổ cái phân tán (Distributed Ledger) được bảo mật bằng mật mã học (cryptography)
 
+
+### Distributed Ledger
+
+> Sổ cái là tập hợp các giao dịch. Sổ cái phân tán có thể chia sẻ và đồng bộ chung với các `node` trên mạng lưới.
+
+
+
+### Cryptography
+
+> Mật mã học sử dụng thuật toán để che giấu thông tin -> trao đổi thông tin an toàn mà không bị bên thứ ba can thiệp 
+
+
+![](../assets/DLT.png)
+
+#### Hàm băm 
+
+> Hàm biến đổi một chiều biến đầu vào(file, video, ...) thành đầu ra có kích thước cố định 
+
+Ví dụ: 
+https://www.md5hashgenerator.com/
+
+
+
+Đặc điểm: 
++ Inverse is very difficult to compute 
++ Deterministic output : X1 -> Y1, X2 ->Y2
++ Very Difficult to find collision: X1 -> Y, X2 -> Y
+
+![](../assets/hash.png)
+
+Refer: https://medium.com/nybles/hashing-algorithms-d10171ca2e89
+
+
+### Các đặc điểm của DLT ( Distributed Ledger Technology)
+
++ Decentralize 
++ Transparent 
++ Immutable 
+
+Refer: https://4irelabs.com/articles/choosing-a-distributed-ledger-technology/
+
+
+## Thành phần của blockchain 
+
+- **Blocks**: Lưu thông tin của nhiều giao dịch 
+- **Chain**: Chuỗi là một tập hợp các khối. Mỗi khối chứa băm của khối trước đó
+- **Nodes**: Là 1 máy tính tham gia vào mạng blockchain 
+
+![](../assets/blockchain.png)
+
+Refer: https://medium.com/the-crypto-block/8-concepts-that-will-help-you-understand-blockchain-technology-c51b0941bf19
+
+
+## Cách thức hoạt động của blockchain
+
+
+![](../assets/how_blockchain_work.png)
 
 ## Các khái niệm cơ bản của blockchain
 
-1. Consensus
-2. P2P
-3. Hash
-5. Node 
-4. Smart Contract 
-5. Keypair
-
-
-
+### Consensus
+### P2P
+### Smart Contract 
+### Keypair (PublicKey và PrivateKey)
 
 
 
 ## Các khái niệm cơ bản của Polkadot Ecosystem 
 
 
-1. Relaychain/ Parachain
+### Relaychain/ Parachain
 
 ![](../assets/relaychain_parachain.png)
+
+### XCM
 
 
 
