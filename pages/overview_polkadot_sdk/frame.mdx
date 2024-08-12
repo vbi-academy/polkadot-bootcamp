@@ -14,7 +14,7 @@ Ví dụ:
 ![](../assets/frame.png)
 
 
-## Core FRAME 
+## Core FRAME (Pallets hệ thống)
 
 + Cung cấp sẵn bởi Substrate 
 
@@ -45,7 +45,26 @@ Ví dụ:
 [frame_executive](https://paritytech.github.io/polkadot-sdk/master/frame_executive/index.html)
 
 
+
+## Functional Pallets ( Pallets chức năng)
+
++ Substrate framework bao gồm rất nhiều các pallet chức năng khác nhau nhằm cung cấp các tính năng được sử dụng bởi các thành phần trong mạng blockchain
+
+Ví dụ:
+
++ pallet_assets (được sử dụng để giải quyết các vấn đề về fungible assets)
++ pallet_contracts (được sử dụng để giúp runtime của bạn có thể hỗ trợ hợp đồng thông minh)
+
+
+
+## Parachain Pallets ( Pallets parachain)
+
++ Cung cấp tính năng cụ thể cho các blockchain có dự định để kết nối tới Relay Chain, trở thành một Parachain
++ Các pallet parachain này thuộc bộ công cụ phát triển Cumulus
+
+
 ![](../assets/overview_runtime.png)
+
 
 ##  Cách xây dựng Runtime 
 
@@ -60,4 +79,6 @@ Cơ bản gồm 2 bước:
 
 + https://docs.substrate.io/reference/frame-pallets/
 + https://docs.substrate.io/reference/frame-macros/
++ https://openguild.wtf/blog/polkadot/polkadot-guide-pallet-la-gi
+
 
