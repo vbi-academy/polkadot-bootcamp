@@ -1,0 +1,62 @@
+# Pallets
+
+
+## Cách xây dựng 1 pallet
+
+
+```rust
+
+
+// Định nghĩa 1 pallet -> pub mod pallet 
+#[frame_support::pallet]
+pub mod pallet {
+ // Sử dụng core frame
+ use frame_support::pallet_prelude::*;
+ use frame_system::pallet_prelude::*;
+
+ // Định nghĩa Struct cho Pallet 
+ // Để implement traits hoặc methods cho pallet 
+ #[pallet::pallet]
+ pub struct Pallet<T>(_);
+
+ // Định nghĩa chia sẻ hành vi của pallet 
+ // Kế thừa từ hành vi của frame_system
+ #[pallet::config]
+ pub trait Config: frame_system::Config { ... }
+
+ // Định nghĩa các onchain storage
+ // Định nghĩa hàm READ
+ #[pallet::storage]
+ #[pallet::getter(fn something)]
+ pub type MyStorage<T: Config> = StorageValue<_, u32>;
+
+ // Định nghĩa event
+ #[pallet::event]
+ #[pallet::generate_deposit(pub(super) fn deposit_event)]
+ pub enum Event<T: Config> { ... }
+
+ // Tự động trigger function khi block được khởi tạo hoặc block được finalize 
+ #[pallet::hooks]
+ impl<T: Config> Hooks<BlockNumberFor<T>> for Pallet<T> { ... }
+
+ // Định nghĩa extrinsic call ( transaction)
+ // Hàm WRITE/ READ
+ #[pallet::call]
+ impl<T:Config> Pallet<T> { ... }
+}
+
+```
+
+
+Tóm lại, gồm có các bước như sau 
+
++ Bước 1: Định nghĩa pallet folder , import pallet vào runtime 
++ Bước 2: Định nghĩa Config Trait ( nêú có)
++ Bước 3: Định nghĩa on-chain storage
++ Bước 4: Định nghĩa transaction 
++ Bước 5: Error Handling + Emit Event 
++ Bước 6: Viết Unit Tests 
++ Bước 7: Chạy `dev` node để test tương tác với client thông qua polkadot js explorer
+
+
+

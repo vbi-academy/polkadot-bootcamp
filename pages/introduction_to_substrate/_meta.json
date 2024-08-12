@@ -1,0 +1,7 @@
+{
+  "blockchain_basic" : "Blockchain cơ bản",
+  "what_is_substrate" : "Substrate là gì?",
+  "why_substrate" : "Tại sao sử dụng Substrate",
+  "substrate_node_architecture": "Cấu trúc của một Substrate Node (Client)", 
+  "substrate_roadmap": "Substrate Roadmap"
+}
