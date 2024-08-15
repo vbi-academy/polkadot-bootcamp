@@ -1,0 +1,102 @@
+# Giới thiệu POP CLI
+
+POP CLI là công cụ phát triển phần mềm hỗ trợ cho việc phát triển chain và contract trong hệ sinh thái Polkadot SDK một cách nhanh chóng và thuận tiện 
+
+Ưu điểm khi sử dụng POP CLI:
++ Nhanh , rút gọn thời gian tìm kiếm template
++ Tránh gặp lỗi khi version không đồng bộ 
++ Hỗ trợ hầu hết các tính năng cơ bản 
+
+
+Nhược điểm: 
++ Chưa hoàn toàn audit 
++ Hiện tại hỗ trợ parachain 
+
+Link github: https://github.com/r0gue-io/pop-cli
+
+## Cài đặt Pop cli
++ Đã cài đặt Rust 
+
+Cài đặt Pop cli từ cargo:
+
+```bash
+cargo install --force --locked pop-cli
+```
+
+Kiểm tra cài đặt thành công 
+```bash
+pop --version
+> pop-cli 0.3.0
+```
+
+
+
+## Tạo parachain 
+
+### Tạo parachain bởi team POP maintain 
+
+1. Tạo parachain với template `assets` 
+```bash
+pop new parachain my-appchain pop --template assets
+```
+
+2. Tạo parachain với template `evm` (EVM-compatible) 
+```bash
+pop new parachain my-appchain pop --template evm
+```
+
+3. Tạo parachain với template `contracts` ( Ink! Smart Contract)
+```bash
+pop new parachain my-appchain pop --template contracts
+```
+
+### Tạo parachain bởi team Parity maintain
+
+
+1. Tạo parachain với template `evm` (EVM-compatible) 
+
+```bash
+pop new parachain my-appchain parity --template fpt
+```
+
+2. Tạo parachain với template `contracts` ( Ink! Smart Contract)
+
+```bash
+pop new parachain my-appchain parity --template cpt
+```
+
+
+
+### Tạo parachain bởi team Openzeppelin maintain
+
+```bash
+pop new parachain my-appchain openzeppelin --template polkadot-generic-runtime-template
+```
+
+## Tạo pallet 
+
+Cú pháp:
+```
+pop new pallet my-pallet
+```
+
+```bash
+pop new pallet --help
+
+Generate a new pallet
+
+Usage: pop new pallet [OPTIONS] [NAME]
+
+Arguments:
+  [NAME]  Name of the pallet [default: pallet-template]
+
+Options:
+  -a, --authors <AUTHORS>          Name of authors [default: Anonymous]
+  -d, --description <DESCRIPTION>  Pallet description [default: "Frame Pallet"]
+  -p, --path <PATH>                Path to the pallet, [default: current directory]
+```
+
+
+
+
+
