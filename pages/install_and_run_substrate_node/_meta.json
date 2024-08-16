@@ -3,7 +3,7 @@
     "install_development_tool_linux" : "Cài đặt môi trường phát triển substrate trên Linux",
     "install_development_tool_window" : "Cài đặt môi trường phát triển substrate trên Window",
     "introduction_to_pop_cli": "Giới thiệu POP CLI", 
-    "interact_substrate_node.mdx": "Tương tác substrate node với Polkadot JS Explorer"
+    "interact_substrate_node": "Tương tác substrate node với Polkadot JS Explorer"
 }
 
   

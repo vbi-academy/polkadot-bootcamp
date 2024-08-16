@@ -1,1 +1,80 @@
 # Tương tác Substrate Node với Polkadot JS Explorer 
+
+## Polkadot JS Explorer là gì 
+
+Giao diện người dùng để người dùng có thể theo dõi và tương tác với mạng blockchain Polkadot và các parachains (chuỗi con) khác trong hệ sinh thái Polkadot.
+
+### Các chức năng cơ bản của Polkadot JS Explorer 
+
++ Xem thông tin khối block ( block number, blockhash, validator, thời gian tạo khối) 
+
++ Xem thông tin logs, events ( transfer, staking, ... )  
+
+
++ Quản lý tài sản 
+
++ Khả năng tương tác với hợp đồng thông minh 
+
++ Tương tác với blockchain (local, testnet, mainnet) 
+
+
+![](../assets/polkadot_js_explorer.png)
+
+### Tương tác dev node với Polkadot JS Explorer 
+
+#### Tạo 1 parachain template 
+
+```
+pop new parachain my-evm-chain pop -t evm
+```
+
+#### Chạy Substrate Node Template 
+
+```bash
+pop up parachain -f ./network.toml 
+```
+
+
+
+#### Truy cập polkadot js explorer 
+
+
+https://polkadot.js.org/apps/#/explorer
+
+-> Chọn Local Node Relay Chain 
++ Alice - Validator 
+https://polkadot.js.org/apps/?rpc=ws://127.0.0.1:61125#/explorer
++ Bob - Validator 
+
+https://polkadot.js.org/apps/?rpc=ws://127.0.0.1:61129#/explorer
+
+
+-> Chọn Local Node Parachain 
+
++ Collator 
+https://polkadot.js.org/apps/?rpc=ws://127.0.0.1:61133#/explorer
+
+
+1. Thực hiện hàm transfer từ `pallet_balances` 
+
+Alice  transfer to Bob 
+
+![](../assets/transfer.png)
+
+
+2. Get thông tin balance của 1 account 
+
+
+Lấy thông tin balance của Bob 
+
+![](../assets/balance.png)
+
+
+3. Tương tác với pallet-template
+
+
+
+
+
+
+
