@@ -1,0 +1,74 @@
+# Tạo keypair (Private Key và Public Key) 
+
+## Cách sử dụng
++ Ký transaction 
++ Ký và Kiểm tra message 
+
+
+## Các loại keypair
+
++ ED25519 , SR25519: Polkadot, Acala, ... 
++ ECDSA : Moonbeam, EVM-compatible layer 
+
+
+## Tạo keypair bằng polkadotjs api 
+
+### Import thư viện 
+
+```javascript
+const { mnemonicGenerate, cryptoWaitReady, mnemonicToMiniSecret } = require('@polkadot/util-crypto');
+const { Keyring } = require('@polkadot/keyring');
+```
+
+### Tạo keypair instance 
+```javascript
+// Tạo keypair instance 
+const keyring = new Keyring({ type: 'sr25519' });
+```
+
+### Tạo keypair từ mnemonic phrase   
+```javascript
+// Tạo keypair ngẫu nhiên
+const mnemonic = mnemonicGenerate()
+const keypair = keyring.addFromMnemonic(mnemonic);
+
+```
+### Tạo keypair từ secret seed 
+
+```javascript
+// Tạo keypair từ mnemonic phrase 
+const privateKey = '0x';
+const keypair = keyring.addFromUri(privateKey, {}, 'sr25519');
+
+```
+
+### Tạo keypair từ các famous account như Alice, Bob, Charlie, ...  
+
+```javascript
+const alice = keyring.addFromUri('//Alice');
+```
+
+
+
+## Ví dụ về sign message and verify message
+
+```javascript
+import { stringToU8a, u8aToHex } from '@polkadot/util';
+
+// create Alice based on the development seed
+const alice = keyring.addFromUri('//Alice');
+
+// create the message, actual signature and verify
+const message = stringToU8a('this is our message');
+const signature = alice.sign(message);
+const isValid = alice.verify(message, signature, alice.publicKey);
+```
+
+
+## Tài liệu tham khảo 
++ https://polkadot.js.org/docs/keyring
+
+
+
+
+

@@ -1,0 +1,68 @@
+# Tương tác với blockchain sử dụng Dedot 
+
+
+## Import thư viện
+```javascript
+const { DedotClient, WsProvider } = require('dedot');
+```
+
+## Định nghĩa provider và tạo client instance 
+```javascript
+const provider = new WsProvider('wss://rpc.polkadot.io');
+const client = await DedotClient.new(provider);
+```
+
+### Get một số thông tin cơ bản của Polkadot 
+
+#### Tên chain 
+```javascript
+
+  const chain = await client.rpc.system_chain();
+  console.log(`Chain:${chain}`);
+```
+
+#### Genesis Hash
+```javascript
+  const genesisHash = await client.rpc.chainSpec_v1_genesisHash();
+  console.log(`Genesis Hash:${genesisHash}`);
+```
+
+#### Properties
+```javascript
+  const properties = JSON.stringify(await client.rpc.chainSpec_v1_properties());
+  console.log(`Properties:${properties}`);
+```
+
+
+### Cách lấy thông tin on-chain 
+
+```javascript
+  const balance = await client.query.system.account("1W6R521W3YLxGsPcM39iUbsBtBpPfzQAC6ixmaB178TGXow");
+```
+
+### Cách sign transaction 
+
+```javascript
+
+  const alice = keyring.addFromUri('//Alice');
+  const bob = keyring.addFromUri('//Bob');
+  const unsub = await client.tx.balances
+  .transferKeepAlive(bob.address, 2_000_000_000_000n)
+  .signAndSend(alice, async ({ status }) => {
+    console.log('Transaction status', status.type);
+    if (status.type === 'BestChainBlockIncluded') { // or status.type === 'Finalized'
+      console.log(`Transaction completed at block hash ${status.value.blockHash}`);
+      await unsub();
+    }
+  });
+```
+
+Kết quả 
+
+```
+Transaction status Validated
+Transaction status Broadcasting
+Transaction status BestChainBlockIncluded
+Transaction completed at block hash 0xd11aa946dc9b238059278cb1d5688668bea06d48ab0a00142468134df935a57c
+```
+

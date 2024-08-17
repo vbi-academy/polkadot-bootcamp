@@ -1,0 +1,42 @@
+# Event API
+
+
+## Get events
+
+Lấy thông tin events `Transfer` 
+
+```javascript
+
+  await client.query.system.events(async (eventRecords) => {
+    const transferEvents = client.events.balances.Transfer.filter(eventRecords);
+  
+    transferEvents.forEach((event, index) => {
+      console.log(`Transfer event ${index + 1}:`, event.palletEvent.data);
+    });
+  });
+
+```
+
+
+## Get errors
+
+Check lỗi khi call hàm `causeError()` trong pallet_template 
+
+```javascript
+
+  await client.query.system.events(async (eventRecords) => {
+    for (const tx of eventRecords) {
+      if (client.events.system.ExtrinsicFailed.is(tx.event)) {
+        const { dispatchError } = tx.event.palletEvent.data;
+        if (client.errors.template.NoneValue.is(dispatchError)) {
+          console.log('Template.NoneValue error occurred!');
+        } else {
+          console.log('Other error occurred', dispatchError);
+        }
+      }
+    }
+  });
+```
+
+
+
