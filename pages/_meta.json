@@ -3,7 +3,7 @@
   "introduction_to_substrate" : "Introduction to Substrate",
   "overview_polkadot_sdk" : "Overview Polkadot SDK",
   "install_and_run_substrate_node" : "Install and Run Substrate Node",
-  "polkadot_api" : "Polkadot API",
+  "client_libraries" : "Thư viện client",
   "rakiapp": {
     "title": "Polkadot Bootcamp - Video ↗",
     "type": "page",
