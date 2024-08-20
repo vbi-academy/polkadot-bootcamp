@@ -5,6 +5,7 @@
   "coding_challenge_1": "Coding Challenge 1",
   "install_and_run_substrate_node" : "Install and Run Substrate Node",
   "client_libraries" : "Thư viện client",
+  "evm_compatible_layer_substrate": "Tích hợp EVM trong Substrate",
   "rakiapp": {
     "title": "Polkadot Bootcamp - Video ↗",
     "type": "page",
