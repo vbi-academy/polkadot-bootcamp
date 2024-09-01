@@ -1,11 +1,12 @@
 {
   "index": "Polkadot Bootcamp 2024",
-  "introduction_to_substrate" : "Introduction to Substrate",
-  "overview_polkadot_sdk" : "Overview Polkadot SDK",
+  "introduction_to_substrate": "Introduction to Substrate",
+  "overview_polkadot_sdk": "Overview Polkadot SDK",
   "coding_challenge_1": "Coding Challenge 1",
-  "install_and_run_substrate_node" : "Install and Run Substrate Node",
-  "client_libraries" : "Thư viện client",
+  "install_and_run_substrate_node": "Install and Run Substrate Node",
+  "client_libraries": "Thư viện client",
   "evm_compatible_layer_substrate": "Tích hợp EVM trong Substrate",
+  "solidity_development_on_moonbeam": "Solidity Development On Moonbeam",
   "rakiapp": {
     "title": "Polkadot Bootcamp - Video ↗",
     "type": "page",
