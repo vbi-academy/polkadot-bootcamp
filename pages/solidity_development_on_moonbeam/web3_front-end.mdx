@@ -1,0 +1,97 @@
+# Xây Dựng Front-end Cho Smart Contract Trên Moonbeam
+
+<iframe
+  width="100%"
+  height="500"
+  src="https://www.youtube.com/embed/g-gqROIiP40?si=meen-FAnRHCmagUU"
+  title="YouTube video player"
+  frameborder="0"
+  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+  referrerpolicy="strict-origin-when-cross-origin"
+  allowfullscreen
+></iframe>
+
+Trong phần này, chúng ta sẽ dựa vào nội dung mà VBI đã phát triển về cách để xây dựng một Front-end DApps, các bạn có thể xem [tại đây](https://www.youtube.com/watch?v=g-gqROIiP40).
+
+Demo sản phẩm cuối với mạng Sepolia Testnet: https://crowdfunding-interface.vercel.app/
+
+## Tích hợp Moonbase Alpha Network
+
+Nếu các bạn đã follow video trên và biết cách để chúng ta có thể xây dựng một front-end Web3, thì các bạn không cần clone git mà hãy làm trên code base của bạn nhé.
+
+- Clone git front-end:
+
+```bash
+git clone -b 03-crowdfunding-interface git@github.com:openedu101/foundry-basics.git --single-branch
+```
+
+Nếu bạn đã tự deploy contract cho bản thân mình thì hãy dùng contract bạn đã deploy nhé. Contract mẫu ở dưới mà mình đã deploy sẵn trên mạng Moonbase.
+
+Chúng ta sẽ không sử dụng Chainlink Oracle vì hiện tại Chainlink Oracle chưa hỗ trợ Moonbase. Nhưng nếu bạn deploy mainnet (là Moonbeam) thì Chainlink có hỗ trợ nha. Xem [tại đây](https://docs.chain.link/data-feeds/price-feeds/addresses?network=moonbeam&page=1).
+
+- Contract:
+
+[0xb8c409618fB8E5f20A2b228E271c01B2a5d3de83](https://moonbase.moonscan.io/address/0xb8c409618fb8e5f20a2b228e271c01b2a5d3de83)
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity 0.8.26;
+
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+
+contract Crowdfunding is Ownable {
+    error InsufficientFunding();
+
+    uint256 public constant MINIMUM_DONATION = 0.05 ether; // 0.05 native token in Wei
+    address public immutable i_ethUsdPriceFeed;
+
+    mapping(address => bool) public s_isFunders;
+    mapping(address => uint256) public s_funderToAmount;
+    address[] public s_funders;
+
+    event Funded(address indexed funder, uint256 value);
+    event Withdrawn(uint256 value);
+
+    receive() external payable {
+        fund();
+    }
+
+    fallback() external payable {
+        fund();
+    }
+
+    constructor(address ethUsdPriceFeed) Ownable(msg.sender) {
+        i_ethUsdPriceFeed = ethUsdPriceFeed;
+    }
+
+    function fund() public payable {
+        if (msg.value < MINIMUM_DONATION) {
+            revert InsufficientFunding();
+        }
+
+        s_funderToAmount[msg.sender] += msg.value;
+        bool isFunded = s_isFunders[msg.sender];
+
+        if (!isFunded) {
+            s_funders.push(msg.sender);
+            s_isFunders[msg.sender] = true;
+        }
+
+        emit Funded(msg.sender, msg.value);
+    }
+
+    function withdraw() public onlyOwner {
+        uint256 withdrawBal = address(this).balance;
+        (bool sent, ) = payable(owner()).call{value: withdrawBal}("");
+        require(sent, "Failed to send Ether");
+
+        emit Withdrawn(withdrawBal);
+    }
+
+    // Tìm ra có bao nhiêu người đã đóng góp
+    function getFundersLength() public view returns (uint256) {
+        return s_funders.length;
+    }
+}
+
+```
