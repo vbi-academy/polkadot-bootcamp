@@ -1,0 +1,104 @@
+# Deploy & Tương Tác Với Contract Đã Deploy Với Remix IDE
+
+Trong phần này, mình sẽ sử dụng contract trong khoá học về Solidity mà VBI Academy đã phát triển, [tại đây](https://github.com/openedu101/solidity-basics/tree/03-decentralized-crowdfunding). Tuy nhiên, Chainlink Data Feeds hiện chưa hỗ trợ Moonbase Alpha Chain. Nên contract chúng ta sẽ có một số thay đổi, mà final code sẽ được mình show ở phía dưới.
+
+Đây chỉ là contract ví dụ, bạn có thể tự mình xây dựng contract bằng kiến thức của bản thân nhé.
+
+Trong trường hợp bạn chưa có nhiều kiến thức về việc xây dựng smart contract bằng ngôn ngữ Solidity, thì bạn có thể follow series Solidity Basics mà mình đã phát triển [tại đây](https://youtube.com/playlist?list=PLxBQKTwGKNkPHerotpDlVQr3nCvNjcUKK&si=joGb4L298nXZLjGj).
+
+<br />
+
+<iframe
+  width="100%"
+  height="500"
+  src="https://www.youtube.com/embed/videoseries?si=EepE8mOdl_mUrQIQ&amp;list=PLxBQKTwGKNkPHerotpDlVQr3nCvNjcUKK"
+  title="YouTube video player"
+  frameborder="0"
+  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+  referrerpolicy="strict-origin-when-cross-origin"
+  allowfullscreen
+></iframe>
+
+## Crowdfunding.sol
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity 0.8.26;
+
+contract Crowdfunding {
+
+    error NoAvailableAmount();
+
+    uint256 public constant MINIMUM_DONATION = 0.05 ether; // 5 native token in Wei
+    address public immutable i_owner;
+
+    mapping(address => bool) public isFunders;
+    mapping(address => uint256) public funderToAmount;
+    address[] public funders;
+
+    event Funded(address indexed funder, uint256 value);
+    event Withdrawn(address indexed owner, uint256 value);
+
+    receive() external payable {
+        fund();
+    }
+
+    fallback() external payable {
+        fund();
+    }
+
+
+    constructor() {
+        i_owner = msg.sender;
+    }
+
+    modifier onlyOwner() {
+        if (i_owner != msg.sender) {
+            revert NoAvailableAmount();
+        }
+        _;
+    }
+
+    function fund() public payable {
+        require(
+            msg.value >= MINIMUM_DONATION,
+            "no available amount"
+        );
+
+        funderToAmount[msg.sender] += msg.value;
+        bool isFunded = isFunders[msg.sender];
+
+        if (!isFunded) {
+            funders.push(msg.sender);
+            isFunders[msg.sender] = true;
+        }
+
+        emit Funded(msg.sender, msg.value);
+    }
+
+    function withdraw() public onlyOwner {
+        (bool sent, ) = payable(i_owner).call{value: address(this).balance}("");
+        require(sent, "Failed to send Ether");
+
+        emit Withdrawn(i_owner, address(this).balance);
+    }
+
+    // Tìm ra có bao nhiêu người đã đóng góp
+    function getFundersLength() public view returns (uint256) {
+        return funders.length;
+    }
+}
+```
+
+Contract này giúp người chủ sở hữu của contract giúp mọi người (ở đây mình gọi là funder) donation native token vào contract thông qua function `fund()`, và chủ sở hữu của contract có thể rút hết tiền ra khỏi contract thông qua function `withdraw()`.
+
+Những đặc điểm của function `fund()`:
+
+- Nếu native token có giá trị ít hơn 0.05 thì function sẽ bị `revert`.
+- Lưu lại tổng số native token funder đã donate.
+- Lưu lại funder đã donation hay chưa để lưu lại tổng số funder đã donate vào trong contract.
+
+Nhưng đặc điểm của function `withdraw()`:
+
+- Chỉ có chủ sở hữu của contract mới có thể rút tiền ra khỏi contract thông qua function này.
+- Sẽ rút hết số dư native token ra khỏi contract.
