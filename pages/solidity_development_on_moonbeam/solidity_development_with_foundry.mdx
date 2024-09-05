@@ -1,0 +1,32 @@
+# Phát Triển Smart Contract Solidity Với Thư Viện Foundry
+
+<iframe
+  width="100%"
+  height="500"
+  src="https://www.youtube.com/embed/videoseries?si=ZWuETd4jTNru079x&amp;list=PLxBQKTwGKNkPgSEwjWXOt5YVT96wvlqUv"
+  title="YouTube video player"
+  frameborder="0"
+  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+  referrerpolicy="strict-origin-when-cross-origin"
+  allowfullscreen
+></iframe>
+
+Đối với việc chúng ta phát triển smart contract Solidity với Remix IDE, chúng ta rất hạn chế về khả năng testing smart contract, trước khi chúng ta đẩy nó lên môi trường testnet để chúng ta testing.
+
+Vì vậy, Foundry ra đời và là một bộ công cụ phổ biến trong giới lập trình viên để chúng ta phát triển smart contract Solidity một cách thuận tiện và nhanh chóng hơn. Cũng như Foundry hỗ trợ cho chúng ta một bộ công cụ test mạnh mẽ để có thể xây dựng nên những contract Solidity an toàn hơn.
+
+Contract trong phần này thì mình cũng sẽ sử dụng contract Crowdfunding, tuy nhiên về code base sẽ có một số thay đổi và testing kỹ càng hơn với thư viện Foundry. Các bạn có thể xem [tại đây](https://github.com/openedu101/foundry-basics/tree/02-decentralized-crowdfunding).
+
+Tuy nhiên, final code trong phần này có thể khác một chút để phù hợp với Moobase Alpha Testnet, và final code sẽ có [tại đây]().
+
+## Foundry
+
+- [Foundry Documentation](https://book.getfoundry.sh/)
+
+Về Foundry thì mình cũng đã có một series chia sẻ về nó, nên bạn hãy follow [tại đây](https://youtube.com/playlist?list=PLxBQKTwGKNkPgSEwjWXOt5YVT96wvlqUv&si=YxnpGrcJzHuAQ4N6) nhé.
+
+Mình đã có nguồn nội dung do chính mình phát triển bên trên, nên nếu bạn chưa có kiến thức về Foundry thì đừng lo, đã follow series trên nhé.
+
+Trong phần này chúng ta sẽ chủ yếu nói về cách để chúng ta deploy contract trên Moonbase Alpha Chain.
+
+Hiện tại, phần verify contract trên mạng Moonbase Alpha Chain vẫn đang còn khá lỗi. Nên chúng ta không cần quan tâm đến phần verify contract đâu nha. Chỉ cần deploy được contract để chúng ta xây dựng DApps trước cái đã. Nếu bạn vẫn còn thắc mắc về phần này thì trong document của Moonbeam có hướng dẫn, bạn hãy theo dõi thêm [tại đây](https://docs.moonbeam.network/builders/ethereum/verify-contracts/).
