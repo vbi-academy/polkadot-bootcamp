@@ -97,6 +97,96 @@ pub fn cross_get(&self) -> bool{
 }
 ```
 
+## Trait - Shared Behaviour 
++ Sử dụng `#[ink::trait_definition]`
++ Định nghĩa interface cho phép chia sẻ thuộc tính giữa các contract 
+
+
+### Step 1: Định nghĩa trait OtherFlip và implement trait 
+
++ Định nghĩa trait OtherFlip 
+
+```rust
+#[ink::trait_definition]
+pub trait OtherFlip {
+    // định nghĩa abstract method flip 
+    #[ink(message)]
+    fn flip(&mut self);
+
+    // định nghĩa abstract method get 
+    #[ink(message)]
+    fn get(&self) -> bool;
+}
+```
+
+
+
++ Implement Trait OtherFlip cho OtherFlipper 
+```rust
+impl OtherFlip for OtherFlipper {
+    #[ink(message)]
+    fn flip(&mut self) {
+        self.value = !self.value;
+    }
+
+    #[ink(message)]
+    fn get(&self) -> bool {
+        self.value
+    }
+}
+```
+
+Link tham khảo: https://github.com/CocDap/cross-contract-ink-example/tree/06-trait-definition
+
+### Step 2: Cross contract trait trong contract Flipper 
+
+```rust
+... 
+/// import trait 
+use other_flipper::OtherFlip;
+
+...
+
+#[ink(storage)]
+pub struct Flipper {
+    other_flipper: ink::contract_ref!(OtherFlip),
+}
+
+... 
+
+#[ink(constructor)]
+pub fn new_v1(other_flipper_contract: AccountId) -> Self {
+
+
+    Self { other_flipper: other_flipper_contract.into() }
+}
+
+```
+
+
+Link tham khảo: https://github.com/CocDap/cross-contract-ink-example/tree/07-cross-trait-definition
+
+
+### Step 3: Định nghĩa hàm flip và get trait 
+
+```rust
+
+#[ink(message)]
+pub fn cross_flip(&mut self){
+    self.other_flipper.flip();
+}
+
+#[ink(message)]
+pub fn cross_get(&self) -> bool{
+    self.other_flipper.get()
+}
+
+```
+
+Link tham khảo: https://github.com/CocDap/cross-contract-ink-example/tree/08-get-flip-cross-trait
+
+
+
 
 
 
