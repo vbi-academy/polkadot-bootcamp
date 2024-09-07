@@ -1,9 +1,6 @@
 {
     "contract_template": "Contract Template",
-    "storage" : "Cách định nghĩa on-chain storage",
-    "events_errors": "Định nghĩa events và errors", 
-    "trait_definition": "Định nghĩa trait",
-    "gas": "Gas trong ink!",
+    "contract_ink_architecture":"Cấu trúc cơ bản của ink! smart contract",
     "cross_contract_call":"Tương tác cross-contract",
     "testings": "Cách viết tests trong ink!"
 }
