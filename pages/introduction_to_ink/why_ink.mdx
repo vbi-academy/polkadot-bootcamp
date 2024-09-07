@@ -1,1 +1,16 @@
 # Tại sao sử dụng ink!?
+
+## Các đặc trung của ink! 
+
++ **Rust**: ink! được viết bằng Rust, nên kế thừa những feature của Rust. Người dùng Rust dễ dàng làm việc với ink!
+
++ **WebAssembly**: ink! contract được compile sang wasm ,cho phép chạy trên các hệ blockchain hỗ trợ wasm 
+
++ **Polkadot Native**: ink! contract được thiết kế cho Polkadot , chỉ cần  tích hợp `pallet-contracts` thì có thể chạy ink! contract
+
++ **Macro**: ink! giảm thiểu việc phát triển 1 smart contract thông qua macro , ví dụ macro `#[ink::storage]` giúp định nghĩa on-chain storage
+
++ **Khả năng tương tác**: ink! contract có thể tương tác với runtime (pallets), cross-chain 
+
+![](../assets/feature_ink.png)
+

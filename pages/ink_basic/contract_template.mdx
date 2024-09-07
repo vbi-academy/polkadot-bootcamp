@@ -1,0 +1,223 @@
+# Contract Template 
+
+## Tạo dự án ink! Flipper 
+
+Sử dụng pop cli 
+
+```bash
+pop new contract flipper
+```
+
+Sau khi tạo contract xong:
+```
+flipper
+  └─ lib.rs                <-- Contract Source Code
+  └─ Cargo.toml            <-- Rust Dependencies and ink! Configuration
+  └─ .gitignore
+```
+
+## Phân tích code cơ bản 
+
+### Cargo.toml
+
+<details>
+  <summary>Code</summary>
+    ```rust
+    [package]
+    name = "flipper"
+    version = "0.1.0"
+    authors = ["[your_name] <[your_email]>"]
+    edition = "2021"
+    // import thư viện ink 
+    [dependencies]
+    ink = { version = "5.0.0", default-features = false }
+
+    // Hỗ trợ e2e testing 
+    [dev-dependencies]
+    ink_e2e = { version = "5.0.0" }
+    // Thay vì chạy file main.rs thì chạy file lib.rs
+    [lib]
+    path = "lib.rs"
+    // Tương tự như pallet 
+    [features]
+    default = ["std"]
+    std = [
+        "ink/std",
+    ]
+    ink-as-dependency = []
+    e2e-tests = []
+    ```
+</details>
+
+
+### lib.rs
+Gồm 3 chức năng chính 
+
+1. Định nghĩa hàm khởi tạo khi deploy contract (hỗ trợ multiple constructor)
+
+Sử dụng hàm `new` 
+```rust
+    #[ink(constructor)]
+    pub fn new(init_value: bool) -> Self {
+        Self { value: init_value }
+    }
+```
+
+Sử dụng hàm `default` 
+```rust
+    #[ink(constructor)]
+    pub fn default() -> Self {
+        Self::new(Default::default())
+    }
+```
+
+1. Chuyển đổi trạng thái `true` sang `false` và ngược lại 
+
+```rust
+    #[ink(message)]
+    pub fn flip(&mut self) {
+        self.value = !self.value;
+    }
+```
+2. Lấy thông tin trạng thái hiện tại 
+
+```rust
+    #[ink(message)]
+    pub fn get(&self) -> bool {
+        self.value
+    }
+```
+
+## Tương tự code Rust 
+
+```rust
+pub struct Flipper {
+    value: bool
+}
+
+impl Flipper {
+    pub fn init(init_value: bool) -> Self {
+        Self { value: init_value }
+    }
+
+    pub fn default() -> Self {
+        Self::init(Default::default())
+    }
+
+    pub fn flip(&mut self) {
+        self.value = !self.value;
+    }
+
+    pub fn get(&self) -> bool {
+        self.value
+    }
+}
+```
+
+## Chạy unit test
+
+
+```rust
+    #[cfg(test)]
+    mod tests {
+        /// Imports all the definitions from the outer scope so we can use them here.
+        use super::*;
+
+        /// We test if the default constructor does its job.
+        #[ink::test]
+        fn default_works() {
+            let flipper = Flipper::default();
+            assert_eq!(flipper.get(), false);
+        }
+
+        /// We test a simple use case of our contract.
+        #[ink::test]
+        fn it_works() {
+            let mut flipper = Flipper::new(false);
+            assert_eq!(flipper.get(), false);
+            flipper.flip();
+            assert_eq!(flipper.get(), true);
+        }
+    }
+```
+
+Sử dụng command: 
+
+Hoặc POP CLI
+
+```bash
+pop test contract 
+```
+
+
+## Chạy e2e test
+
+```bash
+cargo test --features e2e-tests
+```
+
+## Tương tác contract trên POP Network Testnet
+
+### RPC endpoint 
+POP NETWORK: `wss://rpc1.paseo.popnetwork.xyz`
+
+### Faucet 
+Faucet Polkadot Testnet: https://faucet.polkadot.io/
+
+Faucet POP Network Testnet: https://onboard.popnetwork.xyz/
+
+
+### Build contract
+
+```bash
+pop build 
+```
+
+Kết quả sau khi build:
+
+```rust
+│  
+│    - flipper.contract (code + metadata)
+│    - flipper.wasm (the contract's code)
+│    - flipper.json (the contract's metadata)
+```
+
+
+### Sử dụng POP CLI
+#### Step 1: Deploy the contract
+
+```bash
+pop up contract --constructor new --args false --suri //Alice --url wss://rpc1.paseo.popnetwork.xyz
+```
+
+### Sử dụng Contract UI 
+
+Link tương tác contract UI: https://ui.use.ink/
+
+#### Step 1: Upload contract 
+
+
+![](../assets/upload_contract.png)
+
+#### Step 2: Upload Code 
++ Chọn `Account` muốn deploy contract ( deployer)
++ Tên contract
++ Import file `.contract` sau khi đã build ( `./target/ink`)
+
+![](../assets/upload_code.png)
+
+
+#### Step 3: Instantiate the contract (deploy contract) 
+
+
+![](../assets/deploy_ink_code.png)
+
+
+#### Step 4: Tương tác hàm `flip` 
+
+![](../assets/call_flip.png)
+
+
+#### Step 5: Tương tác hàm `get`
+
+![](../assets/call_get.png)
