@@ -1,0 +1,6 @@
+{
+    "contract_template": "Contract Template",
+    "contract_ink_architecture":"Cấu trúc cơ bản của ink! smart contract",
+    "cross_contract_call":"Tương tác cross-contract",
+    "testings": "Cách viết tests trong ink!"
+}

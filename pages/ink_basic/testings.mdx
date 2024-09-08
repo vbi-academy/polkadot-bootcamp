@@ -1,0 +1,128 @@
+# Testing 
+
++ Viết `tests` trong smart contract là quá trình kiểm tra và đảm bảo rằng các hợp đồng thông minh hoạt động chính xác theo logic đề ra. 
++ Do các hợp đồng thông minh thực thi trên blockchain và không thể thay đổi sau khi deploy, việc kiểm tra kỹ lưỡng là cực kỳ quan trọng để tránh các lỗi bảo mật hoặc các vấn đề về logic.
+
+
+
+## Unit test
+
+Kiểm tra từng `method` của smart contract một cách độc lập để đảm bảo từng `method` hoạt động đúng như mong đợi
+
+
+
+Ví dụ đối với contract flipper:
+
+```rust
+#[cfg(test)]
+mod tests {
+    /// Import thư viện 
+    use super::*;
+
+    /// Kiểm tra hàm constructor 
+    #[ink::test]
+    fn default_works() {
+        let my_contract = Flipper::default();
+        assert_eq!(my_contract.get(), false);
+    }
+
+    /// Kiểm tra hàm flip    
+    #[ink::test]
+    fn it_works() {
+        let mut my_contract = Flipper::new(false);
+        assert_eq!(my_contract.get(), false);
+        my_contract.flip();
+        assert_eq!(my_contract.get(), true);
+    }
+}
+```
+
+
+## E2E test 
+
+
++ E2E (End-to-End) testing cho phép các developer viết tests không chỉ kiểm tra các hàm 1 cách cô lập, mà còn kiểm tra smart contract cùng với tất cả các thành phần liên quan on-chain 
+
++ Cách kiểm tra này mô phỏng gần nhất với cách hợp đồng thực sự hoạt động trong môi trường `Testnet/Mainnet` -> Nghĩa là phải chạy node và test thực tế
+
+
+Ví dụ đối với contract flipper:
+
+```rust
+#[cfg(all(test, feature = "e2e-tests"))]
+mod e2e_tests {
+    /// Import thư viện 
+    use super::*;
+
+    /// calling contract messages.
+    use ink_e2e::ContractsBackend;
+
+    type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
+
+    /// Deploy contract sau đó call hàm get 
+    #[ink_e2e::test]
+    async fn default_works(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
+        // Định nghĩa constructor 
+        let mut constructor = FlipperRef::default();
+
+        // Deploy contract 
+        let contract = client
+            .instantiate("flipper", &ink_e2e::alice(), &mut constructor)
+            .submit()
+            .await
+            .expect("instantiate failed");
+        
+        // Builder call 
+        let call_builder = contract.call_builder::<Flipper>();
+
+        // Get builder 
+        let get = call_builder.get();
+        // Call hàm get 
+        let get_result = client.call(&ink_e2e::alice(), &get).dry_run().await?;
+        // Kiểm tra kết quả mong đợi và kết quả thực tế 
+        assert!(matches!(get_result.return_value(), false));
+
+        Ok(())
+    }
+
+    /// Kiểm tra READ(get) và WRITE(get) 
+    #[ink_e2e::test]
+    async fn it_works(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
+        // Định nghĩa constructor 
+
+        let mut constructor = FlipperRef::new(false);
+
+        // Deploy contract 
+        let contract = client
+            .instantiate("flipper", &ink_e2e::bob(), &mut constructor)
+            .submit()
+            .await
+            .expect("instantiate failed");
+
+        // tạo call builder 
+        let mut call_builder = contract.call_builder::<Flipper>();
+
+        // Kiểm tra trạng thái ban đầu 
+        let get = call_builder.get();
+        let get_result = client.call(&ink_e2e::bob(), &get).dry_run().await?;
+        assert!(matches!(get_result.return_value(), false));
+
+        // Call hàm flip 
+        let flip = call_builder.flip();
+        let _flip_result = client
+            .call(&ink_e2e::bob(), &flip)
+            .submit()
+            .await
+            .expect("flip failed");
+
+        // Kiểm tra trạng thái sau khi call hàm flip 
+        let get = call_builder.get();
+        let get_result = client.call(&ink_e2e::bob(), &get).dry_run().await?;
+        assert!(matches!(get_result.return_value(), true));
+
+        Ok(())
+    }
+}
+```
+
+

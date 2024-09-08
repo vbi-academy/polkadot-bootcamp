@@ -7,6 +7,8 @@
   "client_libraries": "Thư viện client",
   "evm_compatible_layer_substrate": "Tích hợp EVM trong Substrate",
   "solidity_development_on_moonbeam": "Solidity Development On Moonbeam",
+  "introduction_to_ink": "Giới thiệu ink!",
+  "ink_basic":"Ink! căn bản",
   "rakiapp": {
     "title": "Polkadot Bootcamp - Video ↗",
     "type": "page",
