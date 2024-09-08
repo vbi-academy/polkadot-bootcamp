@@ -1,10 +1,10 @@
 # Cross contract 
-Cho phép tương tác các `message read` và `message write` giữa các contract khác nhau 
+Cho phép tương tác các `message READ` và `message WRITE` giữa các contract khác nhau 
 
 
 ## Cách sử dụng
 
-+ Mỗi contract có các chức năng riêng biệt. 
++ Mỗi contract có các chức năng riêng biệt, đôi khi có sự tương tác liên quan giữa các contract với nhau 
 
 Ví dụ:
 
@@ -100,11 +100,11 @@ pub fn cross_get(&self) -> bool{
 ## Trait - Shared Behaviour 
 + Sử dụng `#[ink::trait_definition]`
 + Định nghĩa interface cho phép chia sẻ thuộc tính giữa các contract 
-
++ Truy cập state của các contract 
 
 ### Step 1: Định nghĩa trait OtherFlip và implement trait 
 
-+ Định nghĩa trait OtherFlip 
++ Định nghĩa trait `OtherFlip` 
 
 ```rust
 #[ink::trait_definition]
@@ -121,7 +121,7 @@ pub trait OtherFlip {
 
 
 
-+ Implement Trait OtherFlip cho OtherFlipper 
++ Implement Trait `OtherFlip` cho `OtherFlipper` 
 ```rust
 impl OtherFlip for OtherFlipper {
     #[ink(message)]
