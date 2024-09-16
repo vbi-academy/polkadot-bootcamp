@@ -1,0 +1,8 @@
+{
+    "migrate_erc20_solidity": "Chuyển code erc20 solidity sang ink!",
+    "token_extension_psp22":"Token extension chuẩn psp22 của ink!",
+    "migrate_erc721_solidity":"Chuyển code erc721 solidity sang ink!",
+    "nft_extension_psp34": "NFT extension chuẩn psp34 của ink!"
+}
+
+
