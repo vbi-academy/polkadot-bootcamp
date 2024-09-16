@@ -78,7 +78,6 @@
         /// Returned if not enough allowance to fulfill a request is available.
         InsufficientAllowance,
     }
-
     ```
 </details>
 
@@ -96,7 +95,6 @@ constructor(string memory _name, string memory _symbol, uint256 _totalSupply) {
     totalSupply = _totalSupply;
     _balances[msg.sender] = _totalSupply;
 }
-
 ```
 </details>
 
@@ -125,8 +123,6 @@ constructor(string memory _name, string memory _symbol, uint256 _totalSupply) {
             allowances: Default::default(),
         }
     }
-
-
 ```
 </details>
 
@@ -140,7 +136,6 @@ constructor(string memory _name, string memory _symbol, uint256 _totalSupply) {
         require(_owner != address(0), "!ZA");
         return _balances[_owner];
     }
-
 ```
 
 </details>
@@ -153,7 +148,6 @@ constructor(string memory _name, string memory _symbol, uint256 _totalSupply) {
         self.balance_of_impl(&owner)
     }
 ```
-
 </details>
 
 
@@ -172,25 +166,19 @@ function transfer(address _to, uint256 _value) public returns(bool) {
     return true;
 }
 ```
-
 </details>
 
 
 <details>
   <summary>Ink!</summary>
-
 ```rust
     #[ink(message)]
     pub fn transfer(&mut self, to: AccountId, value: Balance) -> Result<()> {
         let from = self.env().caller();
         self.transfer_from_to(&from, &to, value)
     }
-
 ```
 </details>
-
-
-
 
 
 ## Tạo hàm transferFrom
@@ -207,7 +195,6 @@ function transfer(address _to, uint256 _value) public returns(bool) {
         emit Transfer(_from, _to, _value);
         return true;
     }
-
 ```
 
 </details>
@@ -235,21 +222,15 @@ function transfer(address _to, uint256 _value) public returns(bool) {
             .insert((&from, &caller), &(allowance - value));
         Ok(())
     }
-
 ```
 
 </details>
-
-
-
-
 
 ## Tạo hàm approve
 
 
 <details>
   <summary>Solidity</summary>
-
 ```javascript
     function approve(address _spender, uint256 _value) public returns(bool) {
         require(_balances[msg.sender] >= _value, "!Bal");
@@ -293,7 +274,6 @@ function transfer(address _to, uint256 _value) public returns(bool) {
         return _allowances[_spender][_owner];
     }
 ```
-
 </details>
 
 
@@ -367,7 +347,6 @@ function transfer(address _to, uint256 _value) public returns(bool) {
             self.allowances.get((owner, spender)).unwrap_or_default()
     }
 ```
-
 </details>
 
 
