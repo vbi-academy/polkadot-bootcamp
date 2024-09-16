@@ -1,0 +1,87 @@
+# Phân tích code chuẩn psp22 ink! 
+
+
+## Tạo psp22 contract bằng POP CLI
+
+```bash
+pop new contract my_psp22 -c psp -t PSP22
+```
+
+
+
+
+## Cách import token psp22 trên mạng Aleph Zero Testnet - Subwallet
+
+### Cài đặt Subwallet Extension trên Google Chrom/Firefox/Brave
+
+Link cài đặt: https://chromewebstore.google.com/detail/subwallet-polkadot-wallet/onhogfjeacnfoofkfgppdlbmlmnplgbn?hl=en
+
+![](../assets/add_subwallet.png)
+
+### Tạo địa chỉ ví mới hoặc import wallet 
+
+![](../assets/import_wallet.png)
+
+### Chọn Manage Networks -> Choose Aleph Zero Testnet
+
+![](../assets/manage_network.png)
+
+
+### Faucet nếu account của bạn chưa có native tokens
+
+Faucet Aleph Zero: https://faucet.test.azero.dev/
+
+
+
+### Deploy contract trên mạng Aleph Zero Testnet bằng Contract UI 
+
+Bước deploy sẽ tương tự như các bước mình có hướng dẫn ở section [Ink Basic - Contract Template](../../ink_basic/contract_template#sử-dụng-contract-ui-deploy-trên-pop-network-testnet)
+Nên mình bỏ qua bước này 
+
+Ví dụ: 
+
+| Param | Giá trị |
+| --- | --- |
+| supply | 10000000000000000000000  |
+| name | Polkadot Bootcamp   |
+| symbol | POLKAD  |
+| decimals | 18  |
+
+![](../assets/deploy_token.png)
+
+### Import token trên mạng Aleph Zero Testnet - Subwallet
+
+#### Step 1: Vào Subwallet -> Settings -> Manage Tokens 
+
+![](../assets/manage_token.png)
+
+
+#### Step 2: Click nút `+` 
+Add custom token 
+![](../assets/add_custom_token.png)
+
+
+#### Step 3: Import token
+
+Ví dụ:
+| Param | Giá trị |
+| --- | --- |
+| Select Network | Aleph Zero Testnet  |
+| Select Token Type | PSP22   |
+| Contract Address | 5CtoPHQqxj4HgYkKoqP7vFn5Ap7E2acL1TxCJvcyh3Qt6sLT  |
+
+![](../assets/import_token.png)
+
+
+#### Show custom token 
+Filter token 
+
+![](../assets/filter_token.png)
+
+
+
+
+
+
+
+
