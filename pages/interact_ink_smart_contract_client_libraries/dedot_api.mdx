@@ -1,0 +1,276 @@
+# Sử dụng dedot api để tương tác với ink! smart contract 
+
+## Step1: Tạo contract flipper
+
+Đường dẫn hiện tại: `/Users/cocdap/polkadot`
+
+Sử dụng pop cli để tạo contract flipper:
+
+```bash
+pop new contract my_flipper
+```
+
+## Step2: Build contract
+
+Vào `my_flipper` project:
+```
+cd my_flipper
+```
+
+Sử dụng pop cli để build contract
+
+Đường dẫn hiện tại: `/Users/cocdap/polkadot/my_flipper`
+
+```bash
+pop build --release 
+```
+
+Kết quả:
+```bash
+│  Original wasm size: 21.3K, Optimized: 1.7K
+│  
+│  The contract was built in RELEASE mode.
+│  
+│  Your contract artifacts are ready. You can find them in:
+│  /Users/cocdap/polkadot/my_flipper/target/ink
+│  
+│    - my_flipper.contract (code + metadata)
+│    - my_flipper.wasm (the contract's code)
+│    - my_flipper.json (the contract's metadata)
+│  
+└  Build completed successfully!
+```
+
+Đường dẫn `my_flipper.json` file: `/Users/cocdap/polkadot/my_flipper/target/ink`
+
+
+
+## Step3: Generate types
+
+### Tạo folder để chứa thông tin types và APIs
+
+Đường dẫn hiện tại: `/Users/cocdap/polkadot`
+
+```bash
+mkdir dedot-script
+```
+
+### Cài đặt dedot package 
+
+```bash
+npm install -g dedot
+```
+
+### Sử dụng `dedot` để tạo types và API tương ứng với metadata 
+
+Đường dẫn hiện tại: `/Users/cocdap/polkadot`
+
+```
+dedot typink -m my_flipper/target/ink/my_flipper.json -o dedot-script/types
+```
+
+Kết quả:
+
+```
+✔ Parsed contract metadata file: my_flipper/target/ink/my_flipper.json
+✔ Generated contract Types & APIs
+  ➡ Output directory: file:///Users/cocdap/polkadot/dedot-script/types/my-flipper
+  ➡ ContractApi interface: MyFlipperContractApi
+🌈 Done!
+```
+
+## Tạo project script và install dedot
+Đường dẫn hiện tại: `/Users/cocdap/polkadot/dedot-script`
+
+Tạo project:
+```bash
+npm init
+```
+
+Configure typescript cho project và các thư viện cần thiết: https://github.com/CocDap/dedot-script/tree/main
+
+
+## Deploy ink! smart contract bằng dedot api 
+
+<details>
+  <summary>deploy.ts</summary>
+```javascript
+    const provider = new WsProvider(POP_NETWORK_ENDPOINT);
+
+    const client = await DedotClient.new(provider);
+    
+
+    const keyring = new Keyring({ type: 'sr25519'});
+    const alice = keyring.addFromUri('//Alice');
+    console.log(alice.address);
+
+    console.log('Connected to:', await client.rpc.system_chain());
+
+    const myFlipperMeta: string = await fs.readFile('my_flipper.json', 'utf-8');
+    // load contract wasm 
+    const wasm = '0x0061736d01000000012b0860027f7f0060037f7f7f017f60000060047f7f7f7f017f60037f7f7f006000017f60017f017f60017f00027406057365616c310b6765745f73746f726167650003057365616c3005696e7075740000057365616c320b7365745f73746f726167650003057365616c300b7365616c5f72657475726e0004057365616c301176616c75655f7472616e73666572726564000003656e76066d656d6f727902010210030f0e01010101000405060002070002020616037f01418080040b7f00418080050b7f00418080050b0711020463616c6c0011066465706c6f7900120a890b0e2b01017f037f2002200346047f200005200020036a200120036a2d00003a0000200341016a21030c010b0b0b6f01017f0240200020014d04402000210303402002450d02200320012d00003a0000200141016a2101200341016a2103200241016b21020c000b000b200141016b2101200041016b210303402002450d01200220036a200120026a2d00003a0000200241016b21020c000b000b20000b2501017f037f2002200346047f200005200020036a20013a0000200341016a21030c010b0b0b3f01027f0340200245044041000f0b200241016b210220012d0000210320002d00002104200041016a2100200141016a210120032004460d000b200420036b0b2601017f230041106b22022400200220003a000f20012002410f6a4101100a200241106a24000b4801027f024002402000280208220320026a22042003490d00200420002802044b0d00200420036b2002470d01200028020020036a2001200210051a200020043602080f0b000b000b5902017f027e230041206b2200240020004200370308200042003703002000411036021c20002000411c6a1004200028021c41114f0440000b2000290308210120002903002102200041206a2400410541042001200284501b0b4701017f4101410220002802042201047f2000200141016b36020420002000280200220041016a36020020002d00000520000b41ff017122004101461b410020001b410220011b0b3c01027f027f200145044041808004210141010c010b410121024180800441013a000041818004210141020b2103200120023a0000200020031010000b12004180800441003b0100410041021010000b950101057f230041106b2201240020014280800137020820014180800436020420014100360200200141046a220420014104100a024020012802082205200128020c2202490d00200128020421032001410036020c2001200520026b3602082001200220036a360204200020041009200128020c220020012802084b0d00200320022001280204200010021a200141106a24000f0b000b0d0020004180800420011003000b980301067f230041106b22002400024002400240100b41ff01714105470d00200041808001360200418080042000100120002802002201418180014f0d0020014104490d02418380042d00002101418280042d00002102418180042d000021030240418080042d00002204412f470440200441e300470d04410121052003413a47200241a5014772200141d1004772450d010c040b200341860147200241db004772200141d90147720d030b2000428080013702042000418080043602002000410036020c20002000410c6a4104100a2000280204220320002802082201490d00200028020021022000200320016b220336020020022001200120026a22012000100020032000280200220249720d0020002002360204200020013602002000100c220141ff01714102460d0020002802040d0020050d01230041106b220024002000418080043602044180800441003a000020004280808180103702082001200041046a1009200028020c2200418180014f0440000b410020001010000b000b200141ff017145100f41004100100d000b41014101100d000be30101057f230041106b2200240002400240100b41ff01714105470d0020004180800136020c418080042000410c6a1001200028020c2201418180014f0d00024020014104490d002000418480043602042000200141046b360208418380042d00002101418280042d00002102418180042d00002103418080042d0000220441ed014704402004419b0147200341ae0147722002419d0147200141de004772720d01200041046a100c220041ff01714102460d012000100f100e000b200341cb00472002419d0147720d002001411b460d020b41014101100d000b000b4100100f100e000b';
+
+    // create a ContractDeployer instance
+    const deployer = new ContractDeployer<MyFlipperContractApi>(client, myFlipperMeta, wasm);
+
+
+    // Some random salt to prevent duplication issue
+    // Salt is optional, you can skip this to use an empty salt 
+    const salt = stringToHex('random3'); 
+
+    // Dry run the constructor call for validation and gas estimation
+    // An Error will be thrown out if there's a DispatchError or LangError (contract level error)
+    // More on this in the handling error section below
+    const dryRun = await deployer.query.new(true, { caller: alice.address, salt })
+    const { raw: { gasRequired, storageDeposit } } = dryRun;
+
+    // Submitting the transaction to instanciate the contract
+    // Define a variable to hold the contract address
+    let contractAddress: string | undefined;
+
+    // Wrap the signAndSend process in a promise
+    contractAddress = await new Promise<string | undefined>((resolve, reject) => {
+        deployer.tx.new(true, { gasLimit: gasRequired, salt })
+            .signAndSend(alice, ({ status, events }) => {
+                if (status.type === 'BestChainBlockIncluded' || status.type === 'Finalized') {
+                    try {
+                        // Fully-typed event to get contract address
+                        const instantiatedEvent = client.events.contracts.Instantiated.find(events);
+                        const address = instantiatedEvent?.palletEvent.data.contract.address();
+                        
+                        if (address) {
+                            resolve(address); 
+                        } else {
+                            reject(new Error('Contract address not found in events.'));
+                        }
+                    } catch (error) {
+                        reject(error); 
+                    }
+                }
+            });
+    });
+    console.log("Contract Address:",contractAddress);
+```
+</details>
+
++ Chạy câu lệnh deploy bằng:
+
+```bash
+npm run deploy
+```
+
++ Nguồn tài liệu: https://github.com/CocDap/dedot-script/tree/step1/deploy
+
+
+
+## Query contract 
+
+<details>
+  <summary>query.ts</summary>
+```javascript
+    const provider = new WsProvider(POP_NETWORK_ENDPOINT);
+
+    const client = await DedotClient.new(provider);
+
+
+    const keyring = new Keyring({ type: 'sr25519' });
+    const alice = keyring.addFromUri('//Alice');
+    console.log(alice.address);
+
+    console.log('Connected to:', await client.rpc.system_chain());
+
+    const myFlipperMeta: string = await fs.readFile('my_flipper.json', 'utf-8');
+
+    const contractAddress = `5E3aSsKHBeDfo8wmwYYdCD3zpAmEtgoRJeNSK7d2tXEy4J9S`;
+
+    // create a contract instace from its metadata & address
+    const contract = new Contract<MyFlipperContractApi>(client, myFlipperMeta, contractAddress);
+
+    // Making call to get the current value of the flipper contract
+    const result = await contract.query.get({ caller: alice.address });
+    const value: boolean = result.data;
+
+    console.log("Value after deploying:", value);
+
+
+    // // Disconnect from network
+    await client.disconnect();
+    console.log('Disconnected!');
+```
+</details>
+
++ Chạy câu lệnh query bằng:
+
+```bash
+npm run query
+``` 
++ Nguồn tài liệu: https://github.com/CocDap/dedot-script/tree/step2/query
+
+
+## Write contract 
+
+<details>
+  <summary>interact.ts</summary>
+
+```javascript
+    const provider = new WsProvider(POP_NETWORK_ENDPOINT);
+
+    const client = await DedotClient.new(provider);
+
+
+    const keyring = new Keyring({ type: 'sr25519' });
+    const alice = keyring.addFromUri('//Alice');
+    console.log(alice.address);
+
+    console.log('Connected to:', await client.rpc.system_chain());
+
+    const myFlipperMeta: string = await fs.readFile('my_flipper.json', 'utf-8');
+
+    const contractAddress = `5E3aSsKHBeDfo8wmwYYdCD3zpAmEtgoRJeNSK7d2tXEy4J9S`;
+
+    // create a contract instace from its metadata & address
+    const contract = new Contract<MyFlipperContractApi>(client, myFlipperMeta, contractAddress);
+
+    // Dry-run the call for validation and gas estimation
+    const { data, raw } = await contract.query.flip({ caller: alice.address });
+    // Submitting the transaction after passing validation
+    await contract.tx.flip({ gasLimit: raw.gasRequired })
+    .signAndSend(alice, ({ status, events }) => {
+        if (status.type === 'BestChainBlockIncluded' || status.type === 'Finalized') {
+            console.log("Transaction successfully");
+        }
+    })
+
+
+    const result = await contract.query.get({ caller: alice.address });
+    const value: boolean = result.data;
+
+    console.log("Value after calling flip:", value);
+```
+</details>
+
++ Chạy câu lệnh write bằng:
+
+```bash
+npm run interact
+``` 
+
++ Nguồn tài liệu: https://github.com/CocDap/dedot-script/tree/step3/write
+
+
+
+
+## Tài liệu tham khảo 
++ https://docs.dedot.dev/ink-smart-contracts
+
+
+
+
+
+
+
+
+
+
+
+
