@@ -1,0 +1,147 @@
+# Tạo 1 todo app smart contract đơn giản 
+
+## Tạo 1 dự án ink! mới
+
+```bash
+pop new contract todo_app
+cd todo_app
+```
+
+### Định nghĩa on-chain storage
+
+
+```rust
+#[derive(Default, Clone)]
+#[ink::scale_derive(Encode, Decode, TypeInfo)]
+#[cfg_attr(feature = "std", derive(ink::storage::traits::StorageLayout))]
+pub struct Todo {
+   pub id: u64,
+   pub content: String,
+   pub completed: bool,
+}
+
+#[ink(storage)]
+#[derive(Default)]
+pub struct TodoApp {
+   todos: Mapping<(AccountId, u64), Todo>,
+   counter: Mapping<AccountId, u64>,
+}
+```
+
+Giải thích:
+
+Định nghĩa struct `Todo` với 3 trường dữ liệu thông tin là `id` của `Todo` , `content` nội dung của `Todo` và `completed` công việc đã hoàn thành hay chưa:
+
++ `#[derive(Default, Clone)]` sử dụng cho việc implement `Default` và `Clone` cho struct `Todo` 
++ `#[ink::scale_derive(Encode, Decode, TypeInfo)]` sử dụng cho việc `encoding` và `decoding` dữ liệu struct
++ `#[cfg_attr(feature = "std", derive(ink::storage::traits::StorageLayout)]` , phần này bắt buộc khi mà định nghĩa 1 custom struct item. Tham khảo link tại đây: https://use.ink/datastructures/storage-layout/
+
+
+Định nghĩa struct `TodoApp` với 2 storage mapping: `todos` lưu nhiều `todo` items, `counter` lưu thông tin id unique cho `todo` item
++ `#[ink(storage)]` -> định nghĩa storage on-chain 
++ `#[derive(Default)]` -> sử dụng implement `Default` cho struct `TodoApp`
+
+
+### Hàm khởi tạo smart contract 
+
+```rust
+#[ink(constructor)]
+pub fn new() -> Self {
+   Self {
+         todos: Mapping::default(),
+         counter: Mapping::default(),
+   }
+}
+```
+
+Giải thích: 
+
++ `#[ink(constructor)]` : định nghĩa khởi tạo smart contract 
++ Lưu thông tin ban đầu của on-chain storage item: `todos` là `Default`  và `counter` là `Default` 
+
+
+### Implement `add_todo` function
+
+```rust
+// định nghĩa hàm write -> lưu thông tin on-chain ->&mut self
+#[ink(message)]
+pub fn add_todo(&mut self, content: String) {
+    // lấy thông tin người ký transaction này 
+   let caller = self.env().caller();
+   // lấy thông tin unique id thông qua key là AccountId 
+   let id = self.counter.get(caller).unwrap_or_default();
+
+    // Khởi tạo instance Todo item 
+   let todo = Todo {
+         id,
+         content,
+         completed: false,
+   };
+
+   // Lưu thông tin todo item vào todos on-chain
+   self.todos.insert((caller, id), &todo);
+
+    // Tăng 1 đơn vị cho id 
+   let next_id = id.checked_add(1).unwrap();
+   // Lưu thông tin counter vào onchain 
+   self.counter.insert(caller, &next_id);
+}
+```
+
+### Implement `get_todo` function
+
+```rust
+// Định nghĩa hàm READ -> lấy thông tin on-chain -> &self 
+#[ink(message)]
+pub fn get_todo(&self, id: u64) -> Option<Todo> {
+    // Lấy thông tin AccountId của người kí transaction 
+   let caller = self.env().caller();
+   // Trả về todo
+   Some(self.todos.get((caller, id)).unwrap())
+}
+```
+
+### Implement `toggle_todo` function
+
+```rust
+// định nghĩa hàm write -> lưu thông tin on-chain ->&mut self
+#[ink(message)]
+pub fn toggle_todo(&mut self, id: u64) -> bool {
+    // Lấy thông tin caller 
+   let caller = self.env().caller();
+   // Lấy thông tin todo hiện tại tương ứng với key là AccountId và u64
+   let todo = self.todos.get((caller, id)).unwrap();
+   let mut todo = todo.clone();
+   // Thay đổi trạng thái `completed` 
+   todo.completed = !todo.completed;
+   // Lưu lại thông tin todos
+   self.todos.insert((caller, id), &todo);
+   //trả về trạng thái completed
+   todo.completed
+}
+```
+
+### Implement `get_counter` function 
+
+
+```rust
+// Lấy thông tin id hiện tại của 1 AccountId
+#[ink(message)]
+pub fn get_counter(&self, account_id: AccountId) -> u64 {
+    self.counter.get(account_id).unwrap_or_default()
+}
+```
+
+
+## Build và deploy contract trên mạng Pop Network Testnet sử dụng Contract UI 
+
+Bước deploy sẽ tương tự như các bước mình có hướng dẫn ở section [Ink Basic - Contract Template](../../ink_basic/contract_template#sử-dụng-contract-ui-deploy-trên-pop-network-testnet)
+Nên mình bỏ qua bước này 
+
+
+
+## Tài liệu tham khảo: 
++ https://github.com/openguild-labs/open-hack-ink-starter/tree/main/contracts/todo_app
++ https://github.com/openguild-labs/open-hack-ink-starter/tree/main?tab=readme-ov-file#-activity-2-writing-your-first-ink-smart-contract
+
+

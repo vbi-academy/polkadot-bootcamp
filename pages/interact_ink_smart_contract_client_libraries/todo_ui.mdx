@@ -1,0 +1,184 @@
+# Tạo 1 todo app ui để tương tác với ink! smart contract 
+
+## Tạo project NextJS 
+
+```bash
+npx create-next-app todo-app-ui
+cd todo-app-ui
+```
+
+## Cài đặt một số thư viện cần thiết
+```
+pnpm add dedot @polkadot/extension-inject
+pnpm add -D @dedot/chaintypes
+```
+
+Link code: https://github.com/openguild-labs/open-hack-ink-starter/blob/main/frontend/todo-app-ui/package.json
+
+
+## Copy 3 files `todo_app.contract` , `todo_app.json` , `todo_app.wasm` vào frontend folder
+https://github.com/openguild-labs/open-hack-ink-starter/tree/main/frontend/todo-app-ui/artifacts
+
+## Generate types for smart contract 
+
+Generate types mapping từ metadata sang TS ở trong file `lib` của UI
+
+```
+npx dedot typink -m ./artifacts/todo_app.json -o ./lib
+```
+
+Lưu ý : Đường dẫn phải trỏ đúng tới `todo_app.json` và file `output` 
+
+```
+├── lib
+├──── todo-app
+├────── index.d.ts
+├────── constructor-query.d.ts
+├────── constructor-tx.d.ts
+├────── events.d.ts
+├────── tx.d.ts
+├────── types.d.ts
+```
+Link code: https://github.com/openguild-labs/open-hack-ink-starter/tree/main/frontend/todo-app-ui/lib/todo-app
+
+
+## Tương tác smart contract bằng UI 
+
+### Connect wallet 
+
+```javascript
+const injectedWindow = window as Window & InjectedWindow;
+
+// Get subwallet-js injected provider to connect with SubWallet
+const provider: InjectedWindowProvider =
+  injectedWindow.injectedWeb3["subwallet-js"];
+
+const injected: Injected = await provider.enable!("Todo Dapp");
+```
+Link code : https://github.com/openguild-labs/open-hack-ink-starter/blob/main/frontend/todo-app-ui/components/ContractProvider.tsx#L61
+
+
+### Init provider 
+
+Lưu ý: Phần này mình chuyển sang mạng POP Network 
+
+```javascript
+export const ROCOCO_CONTRACT = {
+  name: "pop-contracts",
+  endpoint: "wss://rpc1.paseo.popnetwork.xyz",
+  decimals: 10,
+  prefix: 42,
+  symbol: "PAS",
+};
+
+const wsProvider = new WsProvider(ROCOCO_CONTRACT.endpoint);
+const client = new DedotClient(wsProvider);
+await client.connect();
+```
+
+Link code: https://github.com/openguild-labs/open-hack-ink-starter/blob/main/frontend/todo-app-ui/components/ContractProvider.tsx#L38
+
+
+### Khởi tạo contract
+
+```javascript
+import { Contract, ContractMetadata } from "dedot/contracts";
+import { TodoAppContractApi } from "@/lib/todo-app";
+
+const contract = new Contract<TodoAppContractApi>(
+  dedotClient,
+  todoMetadata as ContractMetadata,
+  process.env.NEXT_PUBLIC_CONTRACT_ADDRESSS as string
+);
+```
+
+Link code: https://github.com/openguild-labs/open-hack-ink-starter/blob/main/frontend/todo-app-ui/components/ContractProvider.tsx#L96
+
+
+### Query `getCounter` function từ smart contract 
+
+```javascript
+const result = await contract?.query.getCounter(account.address, {
+  caller: account.address,
+});
+```
+
+Link code: https://github.com/openguild-labs/open-hack-ink-starter/blob/main/frontend/todo-app-ui/components/TodoList.tsx#L25
+
+
+### Query `getTodo` function 
+
+```javascript
+const result = await contract?.query.getTodo(id, {
+  caller: account.address,
+});
+```
+Link code: https://github.com/openguild-labs/open-hack-ink-starter/blob/main/frontend/todo-app-ui/components/TodoItem.tsx#L34
+
+
+### Call `toggleTodo` function
+
+```javascript
+const { raw } = await contract.query.toggleTodo(id, {
+  caller: account.address,
+});
+
+contract.tx
+  .toggleTodo(id, {
+    gasLimit: raw.gasRequired,
+  })
+  .signAndSend(
+    account.address,
+    {
+      signer: signer,
+    },
+    async ({ status, events }) => {
+      if (
+        status.type === "BestChainBlockIncluded" ||
+        status.type === "Finalized"
+      ) {
+        resolve(id.toString());
+      }
+    }
+  );
+
+```
+Link code: https://github.com/openguild-labs/open-hack-ink-starter/blob/main/frontend/todo-app-ui/components/TodoItem.tsx#L47
+
+
+### Call `addTodo` function 
+
+```javascript
+const { raw } = await contract.query.addTodo(data.content, {
+  caller: account.address,
+});
+
+contract.tx
+  .addTodo(data.content, {
+    gasLimit: raw.gasRequired,
+  })
+  .signAndSend(
+    account.address,
+    {
+      signer: signer,
+    },
+    async ({ status, events }) => {
+      if (
+        status.type === "BestChainBlockIncluded" ||
+        status.type === "Finalized"
+      ) {
+        resolve(data);
+      }
+    }
+  );
+```
+
+Link code: https://github.com/openguild-labs/open-hack-ink-starter/blob/main/frontend/todo-app-ui/components/AddTodoButton.tsx#L52
+
+
+## Kết luận 
+
+
++ Học cách tương tác client với smart contract trên UI 
++ Hiểu cơ bản NextJs
++ Link demo: https://open-hack-ink-starter.vercel.app/ 

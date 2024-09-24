@@ -9,6 +9,8 @@
   "solidity_development_on_moonbeam": "Solidity Development On Moonbeam",
   "introduction_to_ink": "Giới thiệu ink!",
   "ink_basic":"Ink! căn bản",
+  "ink_advance": "Ink! nâng cao",
+  "interact_ink_smart_contract_client_libraries": "Tương tác ink! smart contract sử dụng thư viện client",
   "rakiapp": {
     "title": "Polkadot Bootcamp - Video ↗",
     "type": "page",
