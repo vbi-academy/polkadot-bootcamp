@@ -6,3 +6,83 @@ Xây dựng giao diện Staking Token PSP22
 ![](../assets/staking_ui.png)
 
 Link code tham khảo: https://github.com/CocDap/staking-ui
+
+Link ứng dụng: https://client-pop-staking.vercel.app/
+
+
+## Step 1: Copy 3 files `.contract`, `.json` , `.wasm` vào folder `src/contracts` 
+
++ Copy 3 files `psp22.contract`, `psp22.json`, `psp22.wasm` vào folder `src/contracts/psp22` 
+
+Link code: https://github.com/CocDap/staking-ui/tree/main/src/contracts/psp22
+
+
++ Copy 3 files `staking.contract` , `staking.json` , `staking.wasm` vào frontend folder `src/contracts/staking` 
+
+Link code: https://github.com/CocDap/staking-ui/tree/main/src/contracts/staking
+
+## Step 2: Generate types for smart contract 
+
+Generate types mapping từ metadata sang TS ở trong file `src/contracts` của UI
+
+```
+npx dedot typink -m ./src/contracts/psp22.json -o ./src/contracts/
+```
+
+```
+npx dedot typink -m ./src/contracts/staking.json -o ./src/contracts/
+```
+
+## Step 3: Configure `CONTRACT_ADDRESS_STAKING` và `CONTRACT_ADDRESS_PSP22`
+
+```javascript
+export const ADDRESS_PSP22 = '5E9d4kVJr6xKrTKJwdzX1MQhgKY5SZ4qzF5TtEg2Tq5uJYyq';
+export const ADDRESS_STAKING = '5ED34VqfXVEF7Hd1AQXneBuLnd2n5vW2aYvj15j4pSNytPJV';
+
+export const OWNER_ADDRESS = '5EeG3x2qiUMU8LkRz4WGyy9kFhLY3u1AQwZz9aidvis58jqj';
+```
+Link code: https://github.com/CocDap/staking-ui/blob/main/src/contracts/pop-network-testnet.ts
+
+
+## Step 4: Configure network 
+
+Link code: https://github.com/CocDap/staking-ui/blob/main/src/utils/networks.ts
+
+## Định nghĩa Staking và PSP22 contract instance 
+
+Staking: https://github.com/CocDap/staking-ui/blob/main/src/hooks/useStakingContract.ts
+PSP22: https://github.com/CocDap/staking-ui/blob/main/src/hooks/usePsp22Contract.ts
+
+
+## Configure wallet provider and api provider
+
+Link code wallet provider: https://github.com/CocDap/staking-ui/blob/main/src/providers/WalletProvider.tsx
+
+Link code api provider: https://github.com/CocDap/staking-ui/blob/main/src/providers/ApiProvider.tsx
+
+
+## Call `stake` function từ Staking smart contract 
+
+Link code: https://github.com/CocDap/staking-ui/blob/main/src/hooks/useStakeForm.ts#L106
+
+## Call `unstake` function từ Staking smart contract 
+
+Link code: https://github.com/CocDap/staking-ui/blob/main/src/hooks/useStakeForm.ts#L146
+
+## Call hàm `approve` function từ PSP22 smart contract
+
+Link code: https://github.com/CocDap/staking-ui/blob/main/src/hooks/useStakeForm.ts#L61
+
+
+## Call hàm `claim_reward` function từ Staking Smart Contract 
+
+Link code: https://github.com/CocDap/staking-ui/blob/main/src/hooks/useStakeForm.ts#L187
+
+
+## Faucet testing token 
+
+Link code: https://github.com/CocDap/staking-ui/blob/main/src/components/shared/MainHeader/FaucetButton.tsx
+
+
+
+
