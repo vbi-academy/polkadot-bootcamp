@@ -1,0 +1,544 @@
+# Art Zero Marketplace 
+ArtZero là 1 NFT Marketplace phi tập trung trên blockchain AlephZero. 
+ArtZero hướng đến việc cho phép người dùng taọ các bộ sưu tập NFT của họ, mua bán các NFT, cho phép stake NFT trên nền tảng, ...
+
+Link github: https://github.com/ArtZero-io/Contracts
+
+Noted: Lưu ý phần này mình chỉ tập trung vào chức năng `Marketplace` , ngoài ra ArtZero có nhiều chức năng như:
++ Launchpad 
++ Staking 
+
+Link dapps: https://a0.artzero.io/
+
+## Phân tích code 
+
+### Giới thiệu OpenBrush 
+
+OpenBrush là một thư viện dành cho phát triển smart contrâct trên ink! Nó cung cấp các contract chuẩn (dựa trên PSP), cũng như các contract và macro hữu ích để giúp bạn xây dựng hợp đồng thông minh bằng ink! 1 cách nhanh chóng
+
+
+Link tool: https://openbrush.brushfam.io/
+Link docs: https://learn.brushfam.io/docs/openbrush 
+
+
+### Contract NFT PSP34
+
+#### Định nghĩa on-chain storage
+
+Sử dụng các extension có sẵn của `OpenBrush` như là thông tin NFT, metadata, ownable 
++ `psp34::Data` -> https://github.com/Brushfam/openbrush-contracts/blob/main/contracts/src/token/psp34/psp34.rs#L35
++ `metadata::Data` -> https://github.com/Brushfam/openbrush-contracts/blob/main/contracts/src/token/psp34/extensions/metadata.rs#L33
++ `ownable::Data` -> https://github.com/Brushfam/openbrush-contracts/blob/main/contracts/src/access/ownable/mod.rs#L21
+
+```rust
+    #[derive(Default, Storage)]
+    #[ink(storage)]
+    pub struct Psp34Nft {
+        #[storage_field]
+        psp34: psp34::Data<enumerable::Balances>,
+        #[storage_field]
+        metadata: metadata::Data,
+        #[storage_field]
+        ownable: ownable::Data,
+        #[storage_field]
+        manager: artzero_project::impls::psp34_standard::data::Manager,
+        #[storage_field]
+        admin_data: artzero_project::impls::admin::data::Data,
+    }
+```
+Link code: https://github.com/ArtZero-io/Contracts/blob/mainnet/Azero_Contracts/contracts/psp34_standard/lib.rs#L50
+
+
+
+#### Implement trait cho NFT Contract
+
+```rust
+    impl Ownable for Psp34Nft {}
+    impl PSP34 for Psp34Nft {}
+    impl PSP34Metadata for Psp34Nft {}
+    impl PSP34Enumerable for Psp34Nft {}
+    impl Psp34Traits for Psp34Nft {}
+    impl AdminTrait for Psp34Nft {}
+```
+Link code: https://github.com/ArtZero-io/Contracts/blob/mainnet/Azero_Contracts/contracts/psp34_standard/lib.rs#L86
+
+
+
+Link code: https://github.com/ArtZero-io/Contracts/tree/mainnet/Azero_Contracts/contracts/psp34_standard
+
+
+#### Định nghĩa constructor 
+
++ Initilize contract owner -> https://github.com/Brushfam/openbrush-contracts/blob/main/contracts/src/access/ownable/mod.rs#L69
++ Set attribute cho NFT -> https://github.com/Brushfam/openbrush-contracts/blob/main/contracts/src/token/psp34/extensions/metadata.rs#L53
+
+
+```rust
+#[ink(constructor)]
+pub fn new(contract_owner: AccountId, name: String, symbol: String) -> Self {
+    let mut instance = Self::default();
+    instance._init_with_owner(contract_owner);
+    instance._set_attribute(Id::U8(0), String::from("name").into_bytes(), name.into_bytes());
+    instance._set_attribute(Id::U8(0), String::from("symbol").into_bytes(), symbol.into_bytes());
+    instance
+}
+```
+
+Link code: https://github.com/ArtZero-io/Contracts/blob/mainnet/Azero_Contracts/contracts/psp34_standard/lib.rs#L163
+
+
+
+#### Mint NFT 
+
++ Sử dụng modifer -> check only owner -> https://github.com/Brushfam/openbrush-contracts/blob/main/contracts/src/access/ownable/mod.rs#L27
+
++ Mint NFT 
+
+
+```rust
+#[ink(message)]
+#[modifiers(only_owner)]
+pub fn mint(&mut self) -> Result<(), Error> {
+    let caller = self.env().caller();
+    if let Some(last_token_id) = self.manager.last_token_id.checked_add(1) {
+        self.manager.last_token_id = last_token_id;
+        if self._mint_to(caller, Id::U64(self.manager.last_token_id)).is_err(){
+            return Err(Error::Custom(String::from("Cannot mint")));
+        }
+        return Ok(());
+    } else {
+        return Err(Error::Custom(String::from("Cannot increase last token id")));
+    }
+}
+```
+
+Link code: https://github.com/ArtZero-io/Contracts/blob/mainnet/Azero_Contracts/contracts/psp34_standard/lib.rs#L178
+
+
+
+### Contract Marketplace 
+
+#### Định nghĩa on-chain storage
+
++ Sử dụng extension `ownable` của OpenBrush
++ Thông tin liên quan tới admin và manager 
+
+```rust
+#[derive(Default, Storage)]
+#[ink(storage)]
+pub struct ArtZeroMarketplacePSP34 {
+    #[storage_field]
+    ownable: ownable::Data,
+    #[storage_field]
+    admin_data: artzero_project::impls::admin::data::Data,
+    #[storage_field]
+    upgradable_data: artzero_project::impls::upgradable::data::Data,
+    #[storage_field]
+    manager: artzero_project::impls::marketplace::data::Manager,
+}
+```
+
+Link code: https://github.com/ArtZero-io/Contracts/blob/mainnet/Azero_Contracts/contracts/marketplace/lib.rs#L62
+
+#### Implement trait cho Contract
+
+
+```rust
+impl Ownable for ArtZeroMarketplacePSP34 {}
+impl AdminTrait for ArtZeroMarketplacePSP34 {}
+impl UpgradableTrait for ArtZeroMarketplacePSP34 {}
+impl ArtZeroMarketplaceTrait for ArtZeroMarketplacePSP34 {}
+```
+
+Link code: https://github.com/ArtZero-io/Contracts/blob/mainnet/Azero_Contracts/contracts/marketplace/lib.rs#L73
+
+#### Hàm `list` nft lên Marketplace
+
+<details>
+  <summary>list function</summary>
+```rust
+// MARKETPLACE FUNCTIONS
+/// List the NFT onto the marketplace - FREE of charge
+#[ink(message)]
+pub fn list(&mut self, nft_contract_address: AccountId, token_id: Id, price: Balance, data: Vec<u8>) -> Result<(), Error> {
+    if price == 0 {
+        return Err(Error::InvalidInput)
+    }
+    // Check if the caller is the owner of the token
+    let caller = self.env().caller();
+    if let Some(token_owner) = Psp34Ref::owner_of(&nft_contract_address, token_id.clone()) {
+        if caller != token_owner{
+            return Err(Error::NotTokenOwner)
+        }
+        // Check if this contract has been approved to be able to transfer the NFT on owner behalf
+        let allowance = Psp34Ref::allowance(
+            &nft_contract_address,
+            caller,
+            self.env().account_id(),
+            Some(token_id.clone()),
+        );
+        if !allowance {
+            return Err(Error::NotApproved)
+        }
+        // Check if the collection is active
+        let is_active = ArtZeroCollectionRef::is_active(&self.manager.collection_contract_address, nft_contract_address);
+        if !is_active {
+            return Err(Error::CollectionNotActive)
+        }
+
+        {
+            // Add NFT token_id to sale_tokens_ids and increase the counting in sale_tokens_ids_last_index
+            // This is to know how many and what NFTs are currently for sale by using (owner address and NFT Collection address)
+            let mut last_index = 0;
+            if let Some(last_index_tmp) = self.manager.sale_tokens_ids_last_index.get(&(&Some(&nft_contract_address), &Some(&caller))) {
+                last_index = last_index_tmp;
+            }
+            self.manager.sale_tokens_ids.insert(
+                &(&Some(&nft_contract_address), &Some(&caller)),
+                &token_id
+            );
+            self.manager
+                .sale_tokens_ids_last_index
+                .insert(&(&Some(&nft_contract_address), &Some(&caller)), &(last_index + 1));
+            // Get the Royalty Fee Rate at time of listing and save it the the Sale information
+            // When the NFT is bought, this Royalty Fee will be used
+            let royalty_fee_rate =
+                ArtZeroCollectionRef::get_royalty_fee(&self.manager.collection_contract_address, nft_contract_address);
+            
+            if let Some(sale_information) = self.manager.market_list.get(&(&nft_contract_address, &token_id.clone())) {
+                if sale_information.is_for_sale {
+                    return Err(Error::IsForSale)
+                }
+            }
+            let new_sale = ForSaleItem {
+                nft_owner: token_owner,
+                listed_date: self.env().block_timestamp(),
+                price,
+                is_for_sale: true,
+                royalty_fee_at_listing: royalty_fee_rate
+            };
+            // Add the NFT Sale information to the market_list mapping
+            self.manager
+                .market_list
+                .insert(&(&nft_contract_address, &token_id.clone()), &new_sale);
+            self.update_listed_token_by_collection_address(&nft_contract_address, &true);
+            
+            
+        }
+        // Transfer Token from Caller to Marketplace Contract
+        let builder = Psp34Ref::transfer_builder(
+                &nft_contract_address,
+                self.env().account_id(),
+                token_id.clone(),
+                data
+            )
+            .call_flags(CallFlags::default().set_allow_reentry(true));
+        let result = match builder.try_invoke() {
+            Ok(Ok(Ok(_))) => Ok(()),
+            Ok(Ok(Err(e))) => Err(e.into()),
+            Ok(Err(ink::LangError::CouldNotReadInput)) => Ok(()),
+            Err(ink::env::Error::NotCallable) => Ok(()),
+            _ => {
+                Err(Error::CannotTransfer)
+            }
+        };
+        if result.is_ok() {
+            // Emit NewListEvent event for tracking purposes
+            self.env().emit_event(NewListEvent {
+                trader: Some(caller),
+                nft_contract_address: Some(nft_contract_address),
+                token_id: token_id.clone(),
+                price,
+            });
+        }
+    
+        Ok(())
+    } else {
+        return Err(Error::NotTokenOwner)
+    }
+}
+```
+</details>
+
+Link code: https://github.com/ArtZero-io/Contracts/blob/mainnet/Azero_Contracts/contracts/marketplace/lib.rs#L194
+
+
+
+## Hàm unlist nft ra khỏi Marketplace
+
+<details>
+  <summary>unlist function</summary>
+```rust
+/// Unlist the NFT from the marketplace - FREE of charge
+#[ink(message)]
+pub fn unlist(&mut self, nft_contract_address: AccountId, token_id: Id) -> Result<(), Error> {
+    if let Some(mut sale_information) = self.manager.market_list.get(&(&nft_contract_address, &token_id)) {
+        // Check to make sure the NFT is for sale in the market
+        let caller = self.env().caller();
+        // General checking to ensure its from valid owner and sale is active
+        if sale_information.nft_owner != caller{
+            return Err(Error::NotTokenOwner)
+        }
+        if !sale_information.is_for_sale {
+            return Err(Error::NotForSale)
+        }
+        // remove the NFT from market list by set is_for_sale to false
+        sale_information.is_for_sale = false;
+        self.manager
+            .market_list
+            .insert(&(&nft_contract_address, &token_id), &sale_information);
+        if let Some(mut last_index) = self.manager.sale_tokens_ids_last_index.get(&(&Some(&nft_contract_address), &Some(&caller))) {
+            if !self.manager.sale_tokens_ids.contains_value(&(&Some(&nft_contract_address), &Some(&caller)), &token_id.clone()){
+                return Err(Error::NotInSaleList)
+            }
+            self.manager.sale_tokens_ids.remove_value(
+                &(&Some(&nft_contract_address), &Some(&caller)),
+                &token_id.clone()
+            );
+            
+            if let Some(last_index_tmp) = last_index.checked_sub(1) {
+                // As the NFT is not on the market, the total count of for-sale NFT by (owner and collection) is reduced by 1
+                last_index = last_index_tmp;
+                self.manager
+                .sale_tokens_ids_last_index
+                .insert(&(&Some(&nft_contract_address), &Some(&caller)), &last_index);
+                // Clear Bidders
+                if let Some(bidders) = self.manager.bidders.get(&(&nft_contract_address, &caller, &token_id.clone())) {
+                    for item in bidders.iter() {
+                        if let Some(mut hold_amount_bidder) = self.manager.hold_amount_bidders.get(&item.bidder) {
+                            if let Some(hold_amount_bidder_tmp) = hold_amount_bidder.checked_add(item.bid_value) {
+                                hold_amount_bidder = hold_amount_bidder_tmp;
+                                self.manager.hold_amount_bidders.insert(&item.bidder, &hold_amount_bidder);
+                            } else {
+                                return Err(Error::CheckedOperations)
+                            }
+                        } else {
+                            self.manager.hold_amount_bidders.insert(&item.bidder, &item.bid_value);
+                            self.manager.hold_bidders.insert(1, &item.bidder);
+                        }
+                    }
+                    
+                    let clear_bidders = Vec::<BidInformation>::new();
+                    self.manager
+                        .bidders
+                        .insert(&(&nft_contract_address, &caller, &token_id.clone()), &clear_bidders);
+                }
+                
+                
+                // Send NFT back to caller or token_owner
+                if Psp34Ref::transfer(&nft_contract_address, caller, token_id.clone(), Vec::<u8>::new()).is_err(){
+                    return Err(Error::CannotTransfer)
+                }
+                self.update_listed_token_by_collection_address(&nft_contract_address, &false);
+                self.env().emit_event(UnListEvent {
+                    trader: Some(caller),
+                    nft_contract_address: Some(nft_contract_address),
+                    token_id: token_id.clone(),
+                });
+                Ok(())
+            } else {
+                return Err(Error::CheckedOperations)
+            }
+        } else {
+            return Err(Error::NotInSaleList)
+        }
+    } else {
+        return Err(Error::NotInMarket)
+    }
+}
+```
+</details>
+
+Link code: https://github.com/ArtZero-io/Contracts/blob/mainnet/Azero_Contracts/contracts/marketplace/lib.rs#L294
+
+
+
+## Hàm buy nft trên marketplace
+
+<details>
+  <summary>buy function</summary>
+```rust
+/// Buy Token at listed price
+#[ink(message)]
+#[ink(payable)]
+pub fn buy(&mut self, nft_contract_address: AccountId, token_id: Id) -> Result<(), Error> {
+    if let Some(mut sale_information) = self.manager.market_list.get(&(&nft_contract_address, &token_id)) {
+        let caller = self.env().caller();
+        let seller = sale_information.nft_owner;
+        let price = sale_information.price;
+        // Seller cannot buy his own NFT
+        if seller == caller {
+            return Err(Error::InvalidCaller)
+        }
+        // Check if the NFT is for sale
+        if !sale_information.is_for_sale{
+            return Err(Error::NotForSale)
+        }
+        // Check if the buyer provide enough AZERO to buy the NFT
+        if price != self.env().transferred_value(){
+            return Err(Error::InvalidFee)
+        }
+        // Collection must be active so NFTs can be traded
+        if !ArtZeroCollectionRef::is_active(
+            &self.manager.collection_contract_address,
+            nft_contract_address
+        ) {
+            return Err(Error::CollectionNotActive)
+        }
+        // Check if the Collection Type is supported by this marketplace. Currently only PSP34
+        let contract_type =
+            ArtZeroCollectionRef::get_contract_type(&self.manager.collection_contract_address, nft_contract_address);
+        if contract_type != CollectionType::Psp34Manual && contract_type != CollectionType::Psp34Auto{
+            return Err(Error::InvalidType)
+        }
+        // Set NFT is not for sale
+        sale_information.is_for_sale = false;
+        self.manager
+            .market_list
+            .insert(&(&nft_contract_address, &token_id), &sale_information); // remove from market list
+        // Check if the token is in the sale_tokens_ids list
+        if let Some(mut last_index) = self.manager.sale_tokens_ids_last_index.get(&(&Some(&nft_contract_address), &Some(&seller))) {
+            if !self.manager.sale_tokens_ids.contains_value(&(&Some(&nft_contract_address), &Some(&seller)), &token_id){
+                return Err(Error::NotInSaleList)
+            }
+            // Remove the NFT from sale_tokens_ids list
+            self.manager.sale_tokens_ids.remove_value(
+                &(&Some(&nft_contract_address), &Some(&seller)),
+                &token_id
+            );
+            if let Some(last_index_tmp) = last_index.checked_sub(1) {
+                last_index = last_index_tmp;
+                self.manager
+                    .sale_tokens_ids_last_index
+                    .insert(&(&Some(&nft_contract_address), &Some(&seller)), &last_index);
+                // Clear Bidders
+                // The NFT might have some bids and bidders should get back all the AZERO sent to the contract
+                if let Some(bidders) = self.manager.bidders.get(&(&nft_contract_address, &seller, &token_id.clone())) {
+                    for item in bidders.iter() {
+                        if let Some(mut hold_amount_bidder) = self.manager.hold_amount_bidders.get(&item.bidder) {
+                            if let Some(hold_amount_bidder_tmp) = hold_amount_bidder.checked_add(item.bid_value){
+                                hold_amount_bidder = hold_amount_bidder_tmp;
+                                self.manager.hold_amount_bidders.insert(&item.bidder, &hold_amount_bidder);
+                            }
+                        } else {
+                            self.manager.hold_amount_bidders.insert(&item.bidder, &item.bid_value);
+                            self.manager.hold_bidders.insert(1, &item.bidder);
+                        }
+                    }
+                    
+                    let clear_bidders = Vec::<BidInformation>::new();
+                    self.manager
+                        .bidders
+                        .insert(&(&nft_contract_address, &seller, &token_id.clone()), &clear_bidders);
+                }
+                if let Some(price_mul_platform_fee_tmp) =  price.checked_mul(self.manager.platform_fee as u128) {
+                    if let Some(platform_fee) = price_mul_platform_fee_tmp.checked_div(10000) {
+                        // Fee after Staking discount
+                        let platform_fee_after_discount = self.apply_discount(&seller, &platform_fee);
+                        if let Some(total_profit_tmp) = self.manager.total_profit.checked_add(platform_fee_after_discount) {
+                            self.manager.total_profit = total_profit_tmp;
+                        }
+                        if let Some(current_profit_tmp) = self.manager.current_profit.checked_add(platform_fee_after_discount) {
+                            self.manager.current_profit = current_profit_tmp;
+                        }
+                        if let Some(price_mul_sale_royalty_fee_tmp) = price.checked_mul(sale_information.royalty_fee_at_listing as u128) {
+                            if let Some(royalty_fee) = price_mul_sale_royalty_fee_tmp.checked_div(10000) {
+                                if let Some(collection_owner) = ArtZeroCollectionRef::get_collection_owner(&self.manager.collection_contract_address, nft_contract_address) {
+                                    if royalty_fee > 0 {
+                                        if royalty_fee > self.env().balance() {
+                                            return Err(Error::NotEnoughBalance)
+                                        }
+                                        if self.env().transfer(collection_owner, royalty_fee).is_err() {
+                                            return Err(Error::CannotTransfer)
+                                        }
+                                    }
+                                    if let Some(pice_mul_royalty_fee_tmp) = price.checked_sub(royalty_fee) {
+                                        if let Some(seller_fee) = pice_mul_royalty_fee_tmp.checked_sub(platform_fee_after_discount) {
+                                            // Send AZERO to seller after reduction of Royalty Fee and Platform Fee
+                                            if seller_fee > 0 {
+                                                if seller_fee > self.env().balance() {
+                                                    return Err(Error::NotEnoughBalance)
+                                                }
+                                                if self.env().transfer(seller, seller_fee).is_err() {
+                                                    return Err(Error::CannotTransfer)
+                                                }
+                                            }
+                                            // Update Volumes for platform Statistics
+                                            let mut collection_volume = self.manager.volume_by_collection.get(&nft_contract_address).unwrap_or(0);
+                                            let mut user_volume = self.manager.volume_by_user.get(&seller).unwrap_or(0);
+                                            if let Some(total_volume_tmp) = self.manager.total_volume.checked_add(price) {
+                                                self.manager.total_volume = total_volume_tmp;
+                                                if let Some(collection_volume_tmp) = collection_volume.checked_add(price) {
+                                                    if let Some(user_volume_tmp) = user_volume.checked_add(price) {
+                                                        collection_volume = collection_volume_tmp;
+                                                        user_volume = user_volume_tmp;
+                                                        self.manager
+                                                            .volume_by_collection
+                                                            .insert(&nft_contract_address, &collection_volume);
+                                                        self.manager.volume_by_user.insert(&seller, &user_volume);
+                                                        self.update_listed_token_by_collection_address(&nft_contract_address, &false);
+                                                        // Send NFT to Buyer
+                                                        if Psp34Ref::transfer(&nft_contract_address, caller, token_id.clone(), Vec::<u8>::new()).is_err(){
+                                                            return Err(Error::CannotTransfer)
+                                                        }
+                                                        // Emit PurchaseEvent to the network
+                                                        self.env().emit_event(PurchaseEvent {
+                                                            buyer: Some(caller),
+                                                            seller: Some(seller),
+                                                            nft_contract_address: Some(nft_contract_address),
+                                                            token_id: token_id.clone(),
+                                                            price,
+                                                            platform_fee: platform_fee_after_discount,
+                                                            royalty_fee,
+                                                        });
+                                                        Ok(())
+                                                    } else {
+                                                        return Err(Error::CheckedOperations)
+                                                    }
+                                                } else {
+                                                    return Err(Error::CheckedOperations)
+                                                }
+                                            } else {
+                                                return Err(Error::CheckedOperations)
+                                            }
+                                        } else {
+                                            return Err(Error::CheckedOperations)
+                                        }
+                                    } else {
+                                        return Err(Error::CheckedOperations)
+                                    }
+                                } else {
+                                    return Err(Error::InvalidCollectionOwner)
+                                }
+                            } else {
+                                return Err(Error::CheckedOperations)
+                            }
+                        } else {
+                            return Err(Error::CheckedOperations)
+                        }
+                    } else {
+                        return Err(Error::CheckedOperations)
+                    }
+                } else {
+                    return Err(Error::CheckedOperations)
+                }
+            } else {
+                return Err(Error::CheckedOperations)
+            }
+        } else {
+            return Err(Error::NotInSaleList)
+        }
+    } else {
+        return Err(Error::NotInMarket)
+    }
+}
+```
+</details>
+
+Link code: https://github.com/ArtZero-io/Contracts/blob/mainnet/Azero_Contracts/contracts/marketplace/lib.rs#L373
+
+
+
+
+
+
